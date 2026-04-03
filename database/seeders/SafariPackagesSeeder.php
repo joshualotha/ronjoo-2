@@ -19,8 +19,8 @@ class SafariPackagesSeeder extends Seeder
         $packages = $this->parsePackagesData();
 
         foreach ($packages as $package) {
-            // Generate a slug from the title
-            $slug = Str::slug($package['title']);
+            // Generate a slug from the name
+            $slug = Str::slug($package['name']);
             
             // Check if safari already exists
             $existing = DB::table('safaris')->where('slug', $slug)->first();
@@ -30,7 +30,7 @@ class SafariPackagesSeeder extends Seeder
             
             // Insert the main safari record
             $safariId = DB::table('safaris')->insertGetId([
-                'title' => $package['title'],
+                'name' => $package['name'],
                 'slug' => $slug,
                 'type' => $package['type'],
                 'duration_nights' => $package['duration_nights'],
@@ -120,10 +120,26 @@ class SafariPackagesSeeder extends Seeder
 
     private function parsePackageSection($section, $durationMatches)
     {
-        $lines = explode("\n", $section);
+        $lines = array_map('trim', explode("\n", $section));
         
-        // First line is usually the title
-        $title = trim($lines[0]);
+        // Find the title line (it's usually the line after the duration line)
+        $title = '';
+        for ($i = 0; $i < count($lines); $i++) {
+            if (preg_match('/\d+\s*Nights\s*\/\s*\d+\s*Days/', $lines[$i])) {
+                // The next non-empty line is likely the title
+                for ($j = $i + 1; $j < count($lines); $j++) {
+                    if (!empty($lines[$j]) && !preg_match('/Activities\s*\/\s*Visit:/', $lines[$j])) {
+                        $title = $lines[$j];
+                        break 2;
+                    }
+                }
+            }
+        }
+        
+        // If no title found, use a default
+        if (empty($title)) {
+            $title = 'Safari Package ' . $durationMatches[1] . ' Nights / ' . $durationMatches[2] . ' Days';
+        }
         
         // Extract activities
         $activities = [];
@@ -151,7 +167,7 @@ class SafariPackagesSeeder extends Seeder
         $accommodations = $this->extractAccommodations($section);
         
         return [
-            'title' => $title,
+            'name' => $title,
             'type' => $this->determinePackageType($title),
             'duration_nights' => (int)$durationMatches[1],
             'duration_days' => (int)$durationMatches[2],
