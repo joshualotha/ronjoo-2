@@ -10,7 +10,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             UserSeeder::class,
-            SafariSeeder::class,
+            SafariPackagesSeeder::class,  // Add the new comprehensive seeder
+            SafariSeeder::class,           // Keep existing if needed, but SafariPackagesSeeder should be more complete
             DestinationSeeder::class,
             BookingSeeder::class,
             DepartureSeeder::class,
