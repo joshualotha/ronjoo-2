@@ -1,0 +1,28 @@
+# Ronjoo Safaris — Custom Safari Pricing Engine Logic
+
+This file documents the current "hidden" logic used to estimate prices on the /plan page. 
+Refer to this when moving these settings to the Admin Panel.
+
+## 1. Base Nightly Rates (Per Person)
+These are current benchmarks for the four accommodation tiers:
+- Tented Camp: $150 / night
+- Classic Lodge: $350 / night
+- Luxury Lodge: $600 / night
+- Ultra-Private: $1,000 / night
+
+## 2. Duration Estimation (Days)
+Since travelers pick destinations but not a fixed schedule, we estimate:
+- Formula: (Number of Destinations picked * 2) + 1
+- Logic: Average 2 nights per park + 1 day for arrival/transfer.
+
+## 3. Price Range (Seasonality & Choice)
+To account for High/Low seasons and different lodge prices within a tier:
+- Low Estimate: (Base * Days * Number of People) * 0.8
+- High Estimate: (Base * Days * Number of People) * 1.3
+
+## 4. Current Implementation Location
+File: src/pages/CustomSafariPage.tsx
+Function: estimatePrice()
+
+---
+Created: 2026-04-03

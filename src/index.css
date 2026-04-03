@@ -1,0 +1,263 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 25% 98%;
+    --foreground: 24 20% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 24 20% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 24 20% 15%;
+    --primary: 26 30% 30%;
+    --primary-foreground: 40 25% 98%;
+    --secondary: 40 15% 94%;
+    --secondary-foreground: 24 20% 15%;
+    --muted: 40 10% 92%;
+    --muted-foreground: 24 10% 45%;
+    --accent: 38 65% 50%;
+    --accent-foreground: 40 25% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 40 25% 98%;
+    --border: 40 15% 88%;
+    --input: 40 15% 88%;
+    --ring: 38 65% 50%;
+    --radius: 0px;
+
+    /* Custom tokens */
+    --deep-earth: 35 15% 92%;
+    --warm-canvas: 40 30% 98%;
+    --dust-ivory: 40 20% 95%;
+    --terracotta: 15 50% 48%;
+    --gold: 38 65% 50%;
+    --sage: 120 15% 45%;
+    --warm-charcoal: 20 10% 18%;
+    --faded-sand: 38 20% 88%;
+
+    --sidebar-background: 24 20% 15%;
+    --sidebar-foreground: 40 25% 98%;
+    --sidebar-primary: 38 65% 50%;
+    --sidebar-primary-foreground: 40 25% 98%;
+    --sidebar-accent: 24 25% 25%;
+    --sidebar-accent-foreground: 40 25% 98%;
+    --sidebar-border: 24 20% 20%;
+    --sidebar-ring: 38 65% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-body;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Cormorant Garamond', serif;
+  }
+  
+  /* Do not force heading color — safari hero uses text-warm-canvas on h1 */
+  p, li, a {
+    @apply text-warm-charcoal;
+  }
+}
+
+@layer components {
+  .noise-overlay {
+    position: relative;
+  }
+  .noise-overlay::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.04;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+  }
+
+  .section-dark {
+    @apply bg-deep-earth text-warm-charcoal;
+  }
+  .section-light {
+    @apply bg-warm-canvas text-warm-charcoal;
+  }
+
+  .heading-display {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  .heading-sub {
+    font-family: 'Jost', sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .body-text {
+    font-family: 'Lato', sans-serif;
+    font-weight: 400;
+    font-size: 17px;
+    line-height: 1.85;
+    color: #1C0E08;
+    opacity: 1;
+  }
+
+
+
+  .label-accent {
+    font-family: 'Jost', sans-serif;
+    font-weight: 400;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .gold-rule {
+    width: 120px;
+    height: 1px;
+    background: hsl(var(--gold));
+    opacity: 0.4;
+    margin: 0 auto;
+  }
+
+  .nav-link-hover {
+    position: relative;
+  }
+  .nav-link-hover::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: hsl(var(--gold));
+    transition: width 0.3s ease;
+  }
+  .nav-link-hover:hover::after {
+    width: 100%;
+  }
+
+  .btn-safari {
+    font-family: 'Jost', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 16px 40px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .btn-safari-primary {
+    @apply btn-safari bg-terracotta text-warm-canvas;
+  }
+  .btn-safari-primary:hover {
+    filter: brightness(1.1);
+  }
+
+  .btn-safari-outline {
+    @apply btn-safari border text-warm-canvas;
+    border-color: hsl(var(--warm-canvas) / 0.5);
+  }
+  .btn-safari-outline:hover {
+    @apply bg-warm-canvas text-deep-earth;
+  }
+
+  .btn-safari-terracotta-outline {
+    @apply btn-safari border text-terracotta;
+    border-color: hsl(var(--terracotta));
+  }
+  .btn-safari-terracotta-outline:hover {
+    @apply bg-terracotta text-warm-canvas;
+  }
+
+  @keyframes ken-burns {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.06); }
+  }
+  .ken-burns {
+    animation: ken-burns 12s ease-out forwards;
+  }
+
+  @keyframes scroll-pulse {
+    0%, 100% { transform: translateY(0); opacity: 0.4; }
+    50% { transform: translateY(8px); opacity: 1; }
+  }
+  .scroll-indicator {
+    animation: scroll-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.5; }
+  }
+
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .marquee {
+    animation: marquee 30s linear infinite;
+  }
+
+  .gtranslate_wrapper {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 160px;
+    color: hsl(var(--warm-charcoal));
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .gtranslate_wrapper .goog-te-gadget {
+    color: hsl(var(--warm-charcoal)) !important;
+  }
+
+  .gtranslate_wrapper .goog-te-gadget-simple {
+    background: transparent !important;
+    border: 1px solid rgba(0,0,0,0.15) !important;
+    border-radius: 999px;
+    padding: 0.15rem 0.5rem;
+    color: hsl(var(--warm-charcoal)) !important;
+  }
+
+  .gtranslate_wrapper .goog-te-menu-value span {
+    color: hsl(var(--warm-charcoal)) !important;
+  }
+
+  .gtranslate_wrapper .goog-te-gadget-icon {
+    display: none !important;
+  }
+  .marquee:hover {
+    animation-play-state: paused;
+  }
+
+  @keyframes whatsapp-bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: 'Cormorant Garamond', serif;
+  }
+  .font-sub {
+    font-family: 'Jost', sans-serif;
+  }
+  .font-body {
+    font-family: 'Lato', sans-serif;
+  }
+  .text-gold-branded {
+    color: #B78E29;
+  }
+}
