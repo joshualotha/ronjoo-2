@@ -56,7 +56,6 @@ const navLinks = [
   { label: "Add-Ons", href: "/add-ons" },
   { label: "Destinations", href: "/destinations" },
   { label: "Join a Safari", href: "/departures" },
-  { label: "Travel Tips", href: "/travel-resources" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];

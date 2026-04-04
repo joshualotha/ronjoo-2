@@ -52,6 +52,7 @@ Route::get('/blog-posts/{blogPost}',[BlogPostController::class, 'show']);
 
 Route::get('/departures',           [DepartureController::class, 'index']);
 Route::get('/settings',             [SettingController::class, 'index']);
+Route::get('/gallery-images',       [AdminGalleryImageController::class, 'index']);
 
 /*
 |--------------------------------------------------------------------------

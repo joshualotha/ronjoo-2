@@ -61,7 +61,6 @@ const Footer = () => {
               { label: "Join a Safari", to: "/departures" },
               { label: "Safari Add-Ons", to: "/add-ons" },
               { label: "Custom Safari", to: "/plan" },
-              { label: "Travel Resources", to: "/travel-resources" },
               { label: "FAQ", to: "/faq" },
               { label: "About Us", to: "/about" },
               { label: "Contact", to: "/contact" },

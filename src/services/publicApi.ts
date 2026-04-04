@@ -33,13 +33,6 @@ export const getAddOnBySlug = (slug: string) =>
 export const getFaqs = () =>
   api.get<any[]>('/faqs');
 
-// ─── Travel Guides ─────────────────────────────────
-export const getTravelGuides = () =>
-  api.get<any[]>('/travel-guides');
-
-export const getTravelGuideBySlug = (slug: string) =>
-  api.get<any>(`/travel-guides/${slug}`);
-
 // ─── Reviews ───────────────────────────────────────
 export const getReviews = () =>
   api.get<any[]>('/reviews');
@@ -62,6 +55,10 @@ export const getPublicSettings = (groups = 'general,social,homepage,integrations
   api.get<Array<{ key: string; value: string; group: string | null }>>(
     `/settings?group=${encodeURIComponent(groups)}`
   );
+
+// ─── Gallery Images ─────────────────────────────────
+export const getGalleryImages = () =>
+  api.get<any[]>('/gallery-images');
 
 // ─── Public Form Submissions ───────────────────────
 export const submitEnquiry = (data: Record<string, unknown>) =>

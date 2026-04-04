@@ -7,7 +7,6 @@ use App\Models\Setting;
 use App\Models\Safari;
 use App\Models\Destination;
 use App\Models\AddOn;
-use App\Models\TravelGuide;
 use App\Models\BlogPost;
 use Illuminate\Http\Request;
 
@@ -37,7 +36,6 @@ class SeoController extends Controller
         $urls[] = ['loc' => $domain . '/safaris', 'lastmod' => $yesterday, 'changefreq' => 'daily', 'priority' => '0.9'];
         $urls[] = ['loc' => $domain . '/destinations', 'lastmod' => $yesterday, 'changefreq' => 'daily', 'priority' => '0.9'];
         $urls[] = ['loc' => $domain . '/add-ons', 'lastmod' => $yesterday, 'changefreq' => 'daily', 'priority' => '0.8'];
-        $urls[] = ['loc' => $domain . '/travel-guides', 'lastmod' => $yesterday, 'changefreq' => 'weekly', 'priority' => '0.8'];
         $urls[] = ['loc' => $domain . '/blog', 'lastmod' => $yesterday, 'changefreq' => 'weekly', 'priority' => '0.8'];
         $urls[] = ['loc' => $domain . '/faqs', 'lastmod' => $yesterday, 'changefreq' => 'weekly', 'priority' => '0.5'];
 
@@ -66,16 +64,6 @@ class SeoController extends Controller
             $urls[] = [
                 'loc' => $domain . '/add-ons/' . $addon->slug,
                 'lastmod' => $addon->updated_at->toAtomString(),
-                'changefreq' => 'monthly',
-                'priority' => '0.6'
-            ];
-        }
-
-        $guides = TravelGuide::all();
-        foreach($guides as $guide) {
-            $urls[] = [
-                'loc' => $domain . '/travel-guides/' . $guide->slug,
-                'lastmod' => $guide->updated_at->toAtomString(),
                 'changefreq' => 'monthly',
                 'priority' => '0.6'
             ];

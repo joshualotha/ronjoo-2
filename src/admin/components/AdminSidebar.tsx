@@ -29,7 +29,6 @@ const navGroups = [
       { title: 'Destinations', path: '/kijani-desk/destinations', icon: MapPin },
       { title: 'Add-Ons', path: '/kijani-desk/add-ons', icon: Tag },
       { title: 'Blog & Guides', path: '/kijani-desk/blog', icon: BookOpen },
-      { title: 'Travel Resources', path: '/kijani-desk/resources', icon: Shield },
       { title: 'FAQs', path: '/kijani-desk/faqs', icon: HelpCircle },
       { title: 'Gallery', path: '/kijani-desk/gallery', icon: Image },
       { title: 'Reviews', path: '/kijani-desk/reviews', icon: Star },

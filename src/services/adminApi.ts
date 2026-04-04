@@ -61,7 +61,6 @@ export const faqsApi = {
   createCategory: (name: string) =>
     api.post('/kijani-desk/faq-categories', { name }),
 };
-export const travelGuidesApi = crudEndpoints('travel-guides');
 export const teamApi = crudEndpoints('team');
 export const subscribersApi = crudEndpoints('subscribers');
 export const addOnsApi = crudEndpoints('add-ons');

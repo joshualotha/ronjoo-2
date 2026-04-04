@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Plus, Search, Eye, Pencil, Trash2, Upload } from 'lucide-react';
 import AdminTopBar from '../components/AdminTopBar';
+import ModernRichTextEditor from '../components/ModernRichTextEditor';
 import { useAdminCrud } from '../hooks/useAdminCrud';
 import { blogPostsApi } from '../../services/adminApi';
 
@@ -147,14 +148,12 @@ export default function AdminBlog() {
             <div className="space-y-5">
               <input value={form.title} onChange={e => { updateForm('title', e.target.value); if (!editing) updateForm('slug', e.target.value.toLowerCase().replace(/\s+/g, '-')); }} className="w-full h-[56px] px-4 font-display italic text-[28px] text-warm-charcoal border border-[#E8E0D5] outline-none focus:border-terracotta" placeholder="Post title..." />
 
-              <div className="bg-[#FFFFFF] border border-[#E8E0D5]">
-                {/* Toolbar */}
-                <div className="flex items-center gap-1 px-3 py-2 border-b border-[#E8E0D5]">
-                  {['H2', 'H3', 'B', 'I', 'Quote', 'UL', 'OL', 'Link', 'Image', 'Info Box'].map(btn => (
-                    <button key={btn} className="px-2.5 py-1.5 font-sub font-normal text-[11px] text-warm-charcoal hover:bg-faded-sand/30 hover:text-warm-charcoal transition-colors">{btn}</button>
-                  ))}
-                </div>
-                <textarea value={form.content} onChange={e => updateForm('content', e.target.value)} rows={20} className="w-full px-6 py-4 font-sub font-normal text-[15px] text-warm-charcoal outline-none resize-none leading-relaxed" placeholder="Start writing your post..." />
+              <div className="bg-[#FFFFFF]">
+                <ModernRichTextEditor 
+                  value={form.content} 
+                  onChange={val => updateForm('content', val)} 
+                  placeholder="Share your stories..."
+                />
               </div>
             </div>
 

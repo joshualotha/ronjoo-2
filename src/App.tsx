@@ -16,13 +16,12 @@ import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 import DestinationDetailPage from "./pages/DestinationDetailPage";
 import NotFound from "./pages/NotFound";
-import TravelResourcesPage from "./pages/TravelResourcesPage";
-import TravelGuideDetailPage from "./pages/TravelGuideDetailPage";
 import FaqPage from "./pages/FaqPage";
 import AddOnsPage from "./pages/AddOnsPage";
 import AddOnDetailPage from "./pages/AddOnDetailPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import CookiePolicyPage from "./pages/CookiePolicyPage";
+import GalleryPage from "./pages/GalleryPage";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 
 // Admin imports
@@ -39,7 +38,6 @@ import AdminReviews from "./admin/pages/AdminReviews";
 import AdminNewsletter from "./admin/pages/AdminNewsletter";
 import AdminTeam from "./admin/pages/AdminTeam";
 import AdminSettings from "./admin/pages/AdminSettings";
-import AdminResources from "./admin/pages/AdminResources";
 import AdminFaqs from "./admin/pages/AdminFaqs";
 import AdminGallery from "./admin/pages/AdminGallery";
 import AdminAddOns from "./admin/pages/AdminAddOns";
@@ -74,9 +72,8 @@ const App = () => (
           <Route path="/destinations/:slug" element={<DestinationDetailPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
-          <Route path="/travel-resources" element={<TravelResourcesPage />} />
-          <Route path="/travel-resources/:slug" element={<TravelGuideDetailPage />} />
           <Route path="/faq" element={<FaqPage />} />
+          <Route path="/gallery" element={<GalleryPage />} />
           <Route path="/add-ons" element={<AddOnsPage />} />
           <Route path="/add-ons/:slug" element={<AddOnDetailPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
@@ -95,7 +92,6 @@ const App = () => (
             <Route path="destinations" element={<AdminDestinations />} />
             <Route path="add-ons" element={<AdminAddOns />} />
             <Route path="blog" element={<AdminBlog />} />
-            <Route path="resources" element={<AdminResources />} />
             <Route path="faqs" element={<AdminFaqs />} />
             <Route path="gallery" element={<AdminGallery />} />
             <Route path="reviews" element={<AdminReviews />} />
