@@ -183,7 +183,7 @@ const AddOnsPage = () => {
             >
               <div style={{ color: "#B8922A" }}>{item.icon}</div>
               <p className="font-sub font-normal text-[14px] mt-3" style={{ color: "#1A0F08" }}>{item.title}</p>
-              <p className="font-sub font-light text-[12px] mt-1 max-w-[280px]" style={{ color: "rgba(0,0,0,0.28)" }}>{item.sub}</p>
+              <p className="font-sub font-light text-[12px] mt-1 max-w-[280px]" style={{ color: "rgba(0,0,0,0.6)" }}>{item.sub}</p>
             </motion.div>
           ))}
         </div>
@@ -317,7 +317,7 @@ const AddOnsPage = () => {
                 <div className="relative z-10 pt-10">
                   <div className="text-2xl mb-4">{step.icon}</div>
                   <p className="font-sub font-normal text-[16px] mb-3" style={{ color: "#1A0F08" }}>{step.title}</p>
-                  <p className="font-sub font-light text-[14px] max-w-[320px] mx-auto" style={{ color: "rgba(0,0,0,0.33)" }}>{step.desc}</p>
+                  <p className="font-sub font-light text-[14px] max-w-[320px] mx-auto" style={{ color: "rgba(0,0,0,0.65)" }}>{step.desc}</p>
                 </div>
               </motion.div>
             ))}
@@ -332,7 +332,7 @@ const AddOnsPage = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="font-display italic text-[40px] md:text-[48px] text-deep-earth text-center mb-12"
+            className="font-display italic text-[40px] md:text-[48px] text-warm-charcoal text-center mb-12"
           >
             Quick Reference
           </motion.h2>
@@ -352,7 +352,7 @@ const AddOnsPage = () => {
                   style={{ borderColor: "#D9CDBF" }}
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="font-display italic text-[20px] text-deep-earth group-hover:text-terracotta transition-colors">
+                    <p className="font-display italic text-[20px] text-warm-charcoal group-hover:text-terracotta transition-colors">
                       {addon.name}
                     </p>
                     <p className="font-sub font-light text-[13px] text-warm-charcoal truncate">

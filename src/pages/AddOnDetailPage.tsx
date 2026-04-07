@@ -238,7 +238,7 @@ const AddOnDetailPage = () => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="font-display italic text-[36px] md:text-[52px] text-deep-earth mb-4"
+              className="font-display italic text-[36px] md:text-[52px] text-warm-charcoal mb-4"
             >
               {addon.name}
             </motion.h2>
@@ -260,7 +260,7 @@ const AddOnDetailPage = () => {
 
             {/* Included */}
             <div className="mt-12">
-              <h3 className="font-sub font-normal text-[14px] text-deep-earth uppercase tracking-[0.15em] mb-4">What's Included</h3>
+              <h3 className="font-sub font-normal text-[14px] text-warm-charcoal uppercase tracking-[0.15em] mb-4">What's Included</h3>
               <div className="space-y-2.5">
                 {addon.included.map((item, i) => (
                   <div key={i} className="flex items-start gap-3">
@@ -273,7 +273,7 @@ const AddOnDetailPage = () => {
 
             {/* Not Included */}
             <div className="mt-8">
-              <h3 className="font-sub font-normal text-[14px] text-deep-earth uppercase tracking-[0.15em] mb-4">Not Included</h3>
+              <h3 className="font-sub font-normal text-[14px] text-warm-charcoal uppercase tracking-[0.15em] mb-4">Not Included</h3>
               <div className="space-y-2.5">
                 {addon.notIncluded.map((item, i) => (
                   <div key={i} className="flex items-start gap-3">
@@ -384,7 +384,7 @@ const AddOnDetailPage = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="font-display italic text-[36px] md:text-[48px] text-deep-earth mb-12"
+            className="font-display italic text-[36px] md:text-[48px] text-warm-charcoal mb-12"
           >
             Good to Know
           </motion.h2>
@@ -406,7 +406,7 @@ const AddOnDetailPage = () => {
                     onClick={() => setOpenFaq(openFaq === i ? null : i)}
                     className="w-full flex items-center justify-between py-5 text-left group"
                   >
-                    <span className="font-display italic text-[20px] text-deep-earth group-hover:text-terracotta transition-colors pr-4">
+                    <span className="font-display italic text-[20px] text-warm-charcoal group-hover:text-terracotta transition-colors pr-4">
                       {faq.question}
                     </span>
                     <motion.span
@@ -498,7 +498,7 @@ const AddOnDetailPage = () => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="font-display italic text-[36px] md:text-[48px] text-deep-earth text-center mb-12"
+              className="font-display italic text-[36px] md:text-[48px] text-warm-charcoal text-center mb-12"
             >
               You Might Also Love
             </motion.h2>
