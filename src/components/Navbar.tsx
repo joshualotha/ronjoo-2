@@ -55,6 +55,7 @@ const navLinks = [
   { label: "Safaris", href: "/safaris" },
   { label: "Add-Ons", href: "/add-ons" },
   { label: "Destinations", href: "/destinations" },
+  { label: "Gallery", href: "/gallery" },
   { label: "Join a Safari", href: "/departures" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },

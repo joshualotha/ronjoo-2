@@ -1,11 +1,10 @@
 import { motion } from "framer-motion";
 import { Heart, Shield, Eye, Users } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { getTeamMembers } from "@/services/publicApi";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingElements from "@/components/FloatingElements";
-import heroImg from "@/assets/hero-savanna.jpg";
-import campImg from "@/assets/safari-camp.jpg";
-import elephantImg from "@/assets/safari-elephant.jpg";
 
 const values = [
   { icon: Heart, title: "Passion for Africa", desc: "Every member of our team was born and raised in Tanzania. We don't just show you the bush, we share our home." },
@@ -14,40 +13,80 @@ const values = [
   { icon: Users, title: "Small Groups Only", desc: "Maximum 8 guests per vehicle. Your guide's full attention. Your own rhythm. Your own safari." },
 ];
 
-const team = [
-  { name: "Emmanuel Laizer", role: "Founder & Lead Guide", years: 18, desc: "Born in Arusha to a Maasai family, Emmanuel has been guiding safaris since 2008. He holds a degree in wildlife management and speaks five languages." },
-  { name: "David Mollel", role: "Senior Safari Guide", years: 14, desc: "David's knowledge of big cat behavior is unmatched in the northern circuit. Guests consistently call him the best guide they've ever had." },
-  { name: "Joseph Maasai", role: "Safari Guide & Cultural Expert", years: 10, desc: "Joseph bridges the gap between safari and culture, offering guests deep insights into Maasai traditions and local ecology." },
-  { name: "Amina Mshanga", role: "Operations Director", years: 12, desc: "Amina ensures every safari runs flawlessly, from airport transfers to lodge bookings to emergency contingencies." },
-];
+interface TeamMember {
+  id: string | number;
+  name: string;
+  role: string;
+  bio: string;
+  photo: string;
+  experience?: number;
+  specializations?: string[];
+}
 
 const AboutPage = () => {
+  const { data: teamMembers = [], isLoading } = useQuery<TeamMember[]>({
+    queryKey: ["team-members"],
+    queryFn: getTeamMembers,
+  });
+
+  // Use API data if available, otherwise fall back to static data
+  const team = teamMembers.length > 0 ? teamMembers.map(member => ({
+    name: member.name,
+    role: member.role,
+    years: member.experience || 5,
+    desc: member.bio,
+    photo: member.photo
+  })) : [
+    { name: "Emmanuel Laizer", role: "Founder & Lead Guide", years: 18, desc: "Born in Arusha to a Maasai family, Emmanuel has been guiding safaris since 2008. He holds a degree in wildlife management and speaks five languages." },
+    { name: "David Mollel", role: "Senior Safari Guide", years: 14, desc: "David's knowledge of big cat behavior is unmatched in the northern circuit. Guests consistently call him the best guide they've ever had." },
+    { name: "Joseph Maasai", role: "Safari Guide & Cultural Expert", years: 10, desc: "Joseph bridges the gap between safari and culture, offering guests deep insights into Maasai traditions and local ecology." },
+    { name: "Amina Mshanga", role: "Operations Director", years: 12, desc: "Amina ensures every safari runs flawlessly, from airport transfers to lodge bookings to emergency contingencies." },
+  ];
+
   return (
     <div className="min-h-screen bg-warm-canvas">
       <Navbar />
 
-      {/* Hero */}
-      <section className="relative h-[60vh] overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${campImg})` }} />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.23), rgba(0,0,0,0.38))" }} />
+      {/* Cinematic Hero */}
+      <section className="relative h-[80vh] overflow-hidden group">
+        <motion.div
+           initial={{ scale: 1.15 }}
+           animate={{ scale: 1.05 }}
+           transition={{ duration: 15, ease: "linear", repeat: Infinity, repeatType: "mirror" }}
+           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+           style={{ backgroundImage: `url(/assets/hero-gallery.jpg)` }}
+        />
+        
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
-          <motion.p
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
+          >
+            <span className="label-accent text-warm-canvas/80 text-[11px] tracking-[0.4em] mb-6 block uppercase">
+              Since 2010
+            </span>
+            <h1 className="heading-display text-warm-canvas text-[56px] md:text-[84px] leading-[1.1] mb-8">
+              Our <br />
+              <span className="italic font-light">Story</span>
+            </h1>
+            <div className="w-16 h-[1px] bg-warm-canvas/30 mx-auto mb-8" />
+            <p className="font-sub text-warm-canvas/60 text-sm tracking-[0.1em] max-w-lg mx-auto uppercase">
+               Maasai roots, global horizons, and 15 years of silent wilderness mastery.
+            </p>
+          </motion.div>
+        </div>
+
+        {/* Scroll Indicator */}
+        <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="heading-sub text-gold text-[12px] mb-4"
+            transition={{ delay: 1, duration: 1 }}
+            className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 cursor-pointer group/scroll"
           >
-            Since 2010
-          </motion.p>
-          <motion.h1
-            initial={{ opacity: 0, y: 30, filter: "blur(8px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ duration: 0.9 }}
-            className="heading-display text-warm-canvas text-[56px] md:text-[80px]"
-          >
-            Our Story
-          </motion.h1>
-        </div>
+            <span className="label-accent text-warm-canvas/40 text-[9px] tracking-[0.2em] group-hover/scroll:text-warm-canvas/80 transition-colors">DISCOVER MORE</span>
+            <div className="w-[1px] h-12 bg-gradient-to-b from-warm-canvas/60 to-transparent" />
+          </motion.div>
       </section>
 
       {/* Origin: Born in the Bush */}
@@ -65,7 +104,7 @@ const AboutPage = () => {
             >
               <div className="aspect-[4/5] relative overflow-hidden rounded-t-full rounded-b-[32px]">
                 <img 
-                  src={heroImg} 
+                  src="/assets/hero-destinationspage.jpg" 
                   alt="Maasai heritage" 
                   className="w-full h-full object-cover scale-110 hover:scale-100 transition-transform duration-[2s]" 
                 />
@@ -198,11 +237,21 @@ const AboutPage = () => {
                 className="p-8 bg-dust-ivory/40 border border-faded-sand/40"
               >
                 <div className="flex items-start gap-5">
-                  <div className="w-16 h-16 bg-deep-earth/10 flex items-center justify-center flex-shrink-0">
-                    <span className="font-display italic text-warm-charcoal/30 text-[28px]">
-                      {member.name.charAt(0)}
-                    </span>
-                  </div>
+                  {member.photo ? (
+                    <div className="w-16 h-16 flex-shrink-0 overflow-hidden rounded-full">
+                      <img
+                        src={member.photo}
+                        alt={member.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 bg-deep-earth/10 flex items-center justify-center flex-shrink-0 rounded-full">
+                      <span className="font-display italic text-warm-charcoal/30 text-[28px]">
+                        {member.name.charAt(0)}
+                      </span>
+                    </div>
+                  )}
                   <div>
                     <h3 className="font-display italic text-warm-charcoal text-[22px]">{member.name}</h3>
                     <p className="label-accent text-terracotta text-[10px] mt-1">{member.role}</p>
@@ -218,7 +267,7 @@ const AboutPage = () => {
 
       {/* Image strip */}
       <section className="h-[40vh] relative overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${elephantImg})` }} />
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(/assets/hero-gallery.jpg)` }} />
         <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.15), rgba(0,0,0,0.3))" }} />
         <div className="relative z-10 h-full flex items-center justify-center">
           <motion.p

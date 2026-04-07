@@ -19,7 +19,7 @@ class DestinationController extends Controller
 
     public function show(Destination $destination)
     {
-        $destination->load(['accommodations', 'faqs']);
+        $destination->load(['accommodationsList', 'faqs', 'wildlifeAnimals']);
 
         return new DestinationResource($destination);
     }

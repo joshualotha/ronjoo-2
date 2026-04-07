@@ -7,7 +7,6 @@ import { getDepartures, getSafaris } from "@/services/publicApi";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingElements from "@/components/FloatingElements";
-import heroImg from "@/assets/hero-savanna.jpg";
 
 const months = ["All", "Jun", "Jul", "Aug", "Sep", "Oct"];
 
@@ -51,8 +50,8 @@ const JoinSafariPage = () => {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative h-[50vh] overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${heroImg})` }} />
+      <section className="relative h-[75vh] overflow-hidden">
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(/assets/hero-joinsafarispage.jpg)` }} />
         <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.25), rgba(0,0,0,0.38))" }} />
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
           <motion.h1
@@ -223,7 +222,7 @@ const JoinSafariPage = () => {
                             </div>
                             <div
                               className="h-48 md:h-full bg-cover bg-center min-h-[200px]"
-                              style={{ backgroundImage: `url(${safari?.image || heroImg})` }}
+                              style={{ backgroundImage: `url(${safari?.image || '/assets/hero-joinsafarispage.jpg'})` }}
                             />
                           </div>
                         </motion.div>

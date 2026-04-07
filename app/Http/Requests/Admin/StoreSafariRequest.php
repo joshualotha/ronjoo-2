@@ -134,6 +134,10 @@ class StoreSafariRequest extends FormRequest
             'accommodations.*.description'  => 'nullable|string|max:2000',
             'accommodations.*.website'      => 'nullable|string|max:500',
             'accommodations.*.amenities'    => 'nullable|array',
+            'accommodation_ids'              => 'nullable|array',
+            'accommodation_ids.*.id'         => 'required|integer|exists:accommodations,id',
+            'accommodation_ids.*.nights'     => 'nullable|integer|min:1',
+            'accommodation_ids.*.sort_order' => 'nullable|integer',
         ];
     }
 }

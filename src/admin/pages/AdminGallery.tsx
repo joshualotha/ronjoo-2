@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react';
 import { Upload, Search, Pencil, Trash2, X, Grid, List, Plus } from 'lucide-react';
 import AdminTopBar from '../components/AdminTopBar';
 import { useAdminCrud } from '../hooks/useAdminCrud';
-import { galleryImagesApi } from '../../services/adminApi';
+import { galleryImagesApi, uploadImages } from '../../services/adminApi';
+import { Loader2 } from 'lucide-react';
 
 interface GalleryImage {
   id: string | number;
@@ -26,6 +27,34 @@ export default function AdminGallery() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
+
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleFiles = async (files: File[]) => {
+    if (!files.length) return;
+    setIsUploading(true);
+    try {
+      // Step 1: Upload to storage
+      const urls = await uploadImages(files, 'gallery');
+
+      // Step 2: Create local gallery entries for each URL
+      for (const url of urls) {
+        await create({
+          src: url,
+          alt: '',
+          caption: '',
+          tags: [],
+          category: 'All',
+        } as any);
+      }
+      await refetch();
+    } catch (err: any) {
+      alert(err.message || 'Upload failed');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const [showCreate, setShowCreate] = useState(false);
   const [createForm, setCreateForm] = useState<any>({
@@ -95,9 +124,21 @@ export default function AdminGallery() {
             <button onClick={() => setShowCreate(true)} className="flex items-center gap-2 px-4 py-2 bg-terracotta text-warm-canvas font-sub font-normal text-[13px] uppercase tracking-[0.1em] hover:opacity-90">
               <Plus size={14} /> Add Image
             </button>
-            <label className="flex items-center gap-2 px-4 py-2 bg-terracotta text-warm-canvas font-sub font-normal text-[13px] uppercase tracking-[0.1em] hover:opacity-90 cursor-pointer">
-              <Upload size={14} /> Upload Images
-              <input type="file" multiple accept="image/*" className="hidden" />
+            <label className={`flex items-center gap-2 px-4 py-2 ${isUploading ? 'bg-terracotta/50 cursor-wait' : 'bg-terracotta cursor-pointer hover:opacity-90'} text-warm-canvas font-sub font-normal text-[13px] uppercase tracking-[0.1em]`}>
+              {isUploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />} 
+              {isUploading ? 'Uploading...' : 'Upload Images'}
+              <input 
+                type="file" 
+                multiple 
+                accept="image/*" 
+                className="hidden" 
+                disabled={isUploading}
+                onChange={(e) => {
+                  const files = Array.from(e.target.files || []);
+                  handleFiles(files);
+                  e.target.value = ''; // Reset input
+                }}
+              />
             </label>
           </div>
         </div>
@@ -167,8 +208,24 @@ export default function AdminGallery() {
             )}
 
             {/* Upload drop zone */}
-            <div className="mt-6 border-2 border-dashed border-[#E8E0D5] p-12 text-center hover:border-terracotta transition-colors cursor-pointer">
-              <Upload size={32} className="mx-auto text-warm-charcoal mb-3" />
+            <div 
+              className={`mt-6 border-2 border-dashed ${isDragging ? 'border-terracotta bg-terracotta/5' : 'border-[#E8E0D5]'} p-12 text-center hover:border-terracotta transition-all cursor-pointer relative`}
+              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDragging(false);
+                const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+                handleFiles(files);
+              }}
+            >
+              {isUploading && (
+                <div className="absolute inset-0 bg-warm-canvas/60 z-10 flex flex-col items-center justify-center">
+                  <Loader2 className="animate-spin text-terracotta mb-2" size={32} />
+                  <p className="font-sub font-normal text-[12px] text-warm-charcoal uppercase tracking-widest">Processing Uploads...</p>
+                </div>
+              )}
+              <Upload size={32} className={`mx-auto mb-3 transition-colors ${isDragging ? 'text-terracotta' : 'text-warm-charcoal'}`} />
               <p className="font-sub font-normal text-[14px] text-warm-charcoal">Drop images here to upload</p>
               <p className="font-sub font-normal text-[12px] text-warm-charcoal mt-1">JPG, PNG, WebP, max 5MB per file</p>
             </div>

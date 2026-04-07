@@ -21,7 +21,7 @@ class AdminDestinationController extends Controller
 
     public function show(Destination $destination)
     {
-        $destination->load(['accommodations', 'faqs']);
+        $destination->load(['accommodations', 'accommodationsList', 'faqs', 'wildlifeAnimals']);
         return new DestinationResource($destination);
     }
 
@@ -31,13 +31,15 @@ class AdminDestinationController extends Controller
             $data = $request->validated();
 
             // Extract nested relations
-            $accommodations = $data['accommodations'] ?? [];
-            $faqs           = $data['faqs'] ?? [];
-            unset($data['accommodations'], $data['faqs']);
+            $accommodations      = $data['accommodations'] ?? [];
+            $faqs                = $data['faqs'] ?? [];
+            $wildlifeEntries     = $data['wildlife_ids'] ?? [];
+            $accommodationIds    = $data['accommodation_ids'] ?? null;
+            unset($data['accommodations'], $data['faqs'], $data['wildlife_ids'], $data['accommodation_ids']);
 
             // Store JSON arrays on model
             $data['quick_facts'] = $data['quick_facts'] ?? [];
-            $data['wildlife']    = $data['wildlife'] ?? [];
+            $data['wildlife']    = $data['wildlife'] ?? [];   // Keep legacy JSON for now
             $data['experiences'] = $data['experiences'] ?? [];
             $data['gallery']     = $data['gallery'] ?? [];
 
@@ -54,7 +56,17 @@ class AdminDestinationController extends Controller
                 $destination->faqs()->create($faq);
             }
 
-            return (new DestinationResource($destination->load(['accommodations', 'faqs'])))
+            // Sync wildlife via pivot
+            if (!empty($wildlifeEntries)) {
+                $this->syncWildlife($destination, $wildlifeEntries);
+            }
+
+            // Sync normalized accommodation_ids if provided
+            if ($accommodationIds !== null) {
+                $this->syncAccommodations($destination, $accommodationIds);
+            }
+
+            return (new DestinationResource($destination->load(['accommodations', 'accommodationsList', 'faqs', 'wildlifeAnimals'])))
                 ->response()
                 ->setStatusCode(201);
         });
@@ -65,9 +77,11 @@ class AdminDestinationController extends Controller
         return DB::transaction(function () use ($request, $destination) {
             $data = $request->validated();
 
-            $accommodations = $data['accommodations'] ?? null;
-            $faqs           = $data['faqs'] ?? null;
-            unset($data['accommodations'], $data['faqs']);
+            $accommodations      = $data['accommodations'] ?? null;
+            $faqs                = $data['faqs'] ?? null;
+            $wildlifeEntries     = $data['wildlife_ids'] ?? null;
+            $accommodationIds    = $data['accommodation_ids'] ?? null;
+            unset($data['accommodations'], $data['faqs'], $data['wildlife_ids'], $data['accommodation_ids']);
 
             $destination->update($data);
 
@@ -85,18 +99,64 @@ class AdminDestinationController extends Controller
                 }
             }
 
-            return new DestinationResource($destination->load(['accommodations', 'faqs']));
+            // Sync wildlife via pivot
+            if ($wildlifeEntries !== null) {
+                $this->syncWildlife($destination, $wildlifeEntries);
+            }
+
+            // Sync normalized accommodation_ids if provided
+            if ($accommodationIds !== null) {
+                $this->syncAccommodations($destination, $accommodationIds);
+            }
+
+            return new DestinationResource($destination->load(['accommodations', 'accommodationsList', 'faqs', 'wildlifeAnimals']));
         });
     }
 
     public function destroy(Destination $destination)
     {
         DB::transaction(function () use ($destination) {
+            $destination->wildlifeAnimals()->detach();
+            $destination->accommodationsList()->detach();
             $destination->accommodations()->delete();
             $destination->faqs()->delete();
             $destination->delete();
         });
 
         return response()->json(null, 204);
+    }
+
+    /**
+     * Sync wildlife relationships from an array of entries.
+     * Each entry: { id: int, likelihood?: string, custom_fact?: string, sort_order?: int }
+     */
+    private function syncWildlife(Destination $destination, array $entries): void
+    {
+        $syncData = [];
+        foreach ($entries as $i => $entry) {
+            $wildlifeId = is_array($entry) ? ($entry['id'] ?? null) : $entry;
+            if (!$wildlifeId) continue;
+
+            $syncData[$wildlifeId] = [
+                'likelihood'  => is_array($entry) ? ($entry['likelihood'] ?? 'Common') : 'Common',
+                'custom_fact' => is_array($entry) ? ($entry['custom_fact'] ?? null) : null,
+                'sort_order'  => is_array($entry) ? ($entry['sort_order'] ?? $i) : $i,
+            ];
+        }
+
+        $destination->wildlifeAnimals()->sync($syncData);
+    }
+
+    private function syncAccommodations(Destination $destination, array $entries): void
+    {
+        $syncData = [];
+        foreach ($entries as $i => $entry) {
+            $accId = is_array($entry) ? ($entry['id'] ?? null) : $entry;
+            if (!$accId) continue;
+            $syncData[$accId] = [
+                'sort_order' => is_array($entry) ? ($entry['sort_order'] ?? $i) : $i,
+            ];
+        }
+        $destination->accommodationsList()->sync($syncData);
     }
 }

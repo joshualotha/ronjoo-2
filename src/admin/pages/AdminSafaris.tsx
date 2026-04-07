@@ -1,9 +1,9 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, GripVertical, Eye, Pencil, MoreHorizontal, X, Upload, Trash2, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { Plus, GripVertical, Eye, Pencil, MoreHorizontal, X, Upload, Trash2, ChevronDown, ChevronUp, Loader2, Building2, Search } from 'lucide-react';
 import AdminTopBar from '../components/AdminTopBar';
 import { useAdminCrud } from '../hooks/useAdminCrud';
-import { safarisApi, uploadImages } from '../../services/adminApi';
+import { safarisApi, accommodationsApi, uploadImages } from '../../services/adminApi';
 
 const safariTypes = ['Wildlife Safari', 'Migration Safari', 'Mountain Trek', 'Family Safari', 'Honeymoon', 'Photography', 'Beach Extension', 'Southern Circuit'];
 const difficulties = ['Easy', 'Moderate', 'Challenging', 'Extreme'];
@@ -76,6 +76,12 @@ interface AccommodationItem {
   website: string;
 }
 
+interface AccommodationPick {
+  id: number;
+  nights: number;
+  sort_order: number;
+}
+
 interface SafariFormData {
   name: string;
   slug: string;
@@ -93,6 +99,7 @@ interface SafariFormData {
   highlights: string[];
   itinerary: ItineraryDay[];
   accommodations: AccommodationItem[];
+  accommodation_ids: AccommodationPick[];
   inclusions: string[];
   exclusions: string[];
   priceTiers: { label: string; price: number }[];
@@ -113,7 +120,7 @@ const defaultForm: SafariFormData = {
   name: '', slug: '', type: 'Wildlife Safari', duration: 7, maxGroupSize: 6, difficulty: 'Easy',
   bestSeason: [], shortDescription: '', status: 'draft', featured: false, overview: '',
   image: '', heroImages: [],
-  highlights: [''], itinerary: [{ ...emptyDay }], accommodations: [],
+  highlights: [''], itinerary: [{ ...emptyDay }], accommodations: [], accommodation_ids: [],
   inclusions: ['Accommodation as specified', 'All meals during safari', 'Professional English-speaking guide', 'Private 4WD safari vehicle', 'All national park fees', 'Airport transfers'], exclusions: ['International flights', 'Visa fees', 'Travel insurance', 'Personal gratuities', 'Alcoholic beverages'],
   priceTiers: [{ label: '1 person', price: 0 }, { label: '2 persons', price: 0 }, { label: '3-4 persons', price: 0 }],
   metaTitle: '', metaDescription: '', focusKeyword: ''
@@ -128,6 +135,13 @@ export default function AdminSafaris() {
   const [isHydrating, setIsHydrating] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [accCatalog, setAccCatalog] = useState<any[]>([]);
+  const [accSearch, setAccSearch] = useState('');
+
+  // Load global accommodations catalog
+  useEffect(() => {
+    accommodationsApi.list().then((data: any) => setAccCatalog(Array.isArray(data) ? data : []));
+  }, []);
 
   const tabs = [
     { id: 'basic', label: 'Basic Info' },
@@ -197,6 +211,15 @@ export default function AdminSafaris() {
               image: a.image ?? '', rating: Number(a.rating ?? 4), website: a.website ?? ''
             }))
             : [],
+          accommodation_ids: Array.isArray((full as any).accommodations)
+            ? (full as any).accommodations
+                .filter((a: any) => a.id)
+                .map((a: any, i: number) => ({
+                  id: a.id,
+                  nights: Number(a.nights ?? 1),
+                  sort_order: a.sort_order ?? i,
+                }))
+            : [],
           priceTiers: tierList.length > 0 ? tierList : defaultForm.priceTiers,
           metaTitle: (full as any).metaTitle ?? '',
           metaDescription: (full as any).metaDescription ?? '',
@@ -258,6 +281,7 @@ export default function AdminSafaris() {
       exclusions: (form.exclusions ?? []).filter((v) => String(v ?? '').trim() !== ''),
       priceTiers: (form.priceTiers ?? []).filter((t) => String(t?.label ?? '').trim() !== ''),
       accommodations: (form.accommodations ?? []).filter((a) => String(a.name ?? '').trim() !== ''),
+      accommodation_ids: form.accommodation_ids ?? [],
       metaTitle: form.metaTitle || null,
       metaDescription: form.metaDescription || null,
       focusKeyword: form.focusKeyword || null,
@@ -592,81 +616,114 @@ export default function AdminSafaris() {
               </div>
             )}
 
-            {/* ACCOMMODATIONS */}
-            {activeTab === 'accommodations' && (
-              <div className="space-y-4">
-                {form.accommodations.map((acc, i) => (
-                  <div key={i} className="border border-[#E8E0D5] p-5">
-                    <div className="flex items-center justify-between mb-4">
-                      <h4 className="font-display italic text-[20px] text-warm-charcoal">Lodge {i + 1}</h4>
-                      <button onClick={() => updateForm('accommodations', form.accommodations.filter((_, j) => j !== i))} className="text-warm-charcoal hover:text-terracotta"><Trash2 size={14} /></button>
+            {/* ACCOMMODATIONS — Picker from global catalog */}
+            {activeTab === 'accommodations' && (() => {
+              const selectedIds = new Set(form.accommodation_ids.map(a => a.id));
+              const filteredCatalog = accCatalog.filter(a => {
+                if (selectedIds.has(a.id)) return false;
+                if (!accSearch) return true;
+                return a.name?.toLowerCase().includes(accSearch.toLowerCase()) || a.location?.toLowerCase().includes(accSearch.toLowerCase());
+              });
+
+              const toggleAcc = (acc: any) => {
+                if (selectedIds.has(acc.id)) {
+                  updateForm('accommodation_ids', form.accommodation_ids.filter(a => a.id !== acc.id));
+                } else {
+                  updateForm('accommodation_ids', [...form.accommodation_ids, { id: acc.id, nights: 1, sort_order: form.accommodation_ids.length }]);
+                }
+              };
+
+              const updateNights = (accId: number, nights: number) => {
+                updateForm('accommodation_ids', form.accommodation_ids.map(a => a.id === accId ? { ...a, nights } : a));
+              };
+
+              const removeAcc = (accId: number) => {
+                updateForm('accommodation_ids', form.accommodation_ids.filter(a => a.id !== accId));
+              };
+
+              const getAccDetail = (id: number) => accCatalog.find(a => a.id === id);
+
+              return (
+                <div className="space-y-6">
+                  {/* Selected accommodations */}
+                  {form.accommodation_ids.length > 0 && (
+                    <div>
+                      <label className="font-sub text-[11px] text-warm-charcoal uppercase tracking-[0.15em] mb-3 block">Selected Lodges & Camps ({form.accommodation_ids.length})</label>
+                      <div className="space-y-2">
+                        {form.accommodation_ids.map((pick) => {
+                          const detail = getAccDetail(pick.id);
+                          if (!detail) return null;
+                          return (
+                            <div key={pick.id} className="flex items-center gap-3 p-3 border border-[#E8E0D5] bg-[#FBF8F3]">
+                              {detail.image ? (
+                                <img src={detail.image} alt={detail.name} className="w-16 h-12 object-cover flex-shrink-0" />
+                              ) : (
+                                <div className="w-16 h-12 bg-faded-sand/50 flex items-center justify-center flex-shrink-0">
+                                  <Building2 size={16} className="text-warm-charcoal/20" />
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <p className="font-sub font-normal text-[13px] text-warm-charcoal truncate">{detail.name}</p>
+                                <p className="font-sub font-normal text-[10px] text-warm-charcoal/50">{detail.tier}{detail.location ? ` · ${detail.location}` : ''}</p>
+                              </div>
+                              <div className="flex items-center gap-2 flex-shrink-0">
+                                <label className="font-sub text-[10px] text-warm-charcoal/60 uppercase">Nights</label>
+                                <input
+                                  type="number"
+                                  value={pick.nights}
+                                  onChange={e => updateNights(pick.id, Math.max(1, +e.target.value))}
+                                  className="w-[60px] h-[30px] px-2 text-center font-sub font-normal text-[13px] text-warm-charcoal border border-[#E8E0D5] outline-none focus:border-terracotta"
+                                  min={1}
+                                />
+                              </div>
+                              <button onClick={() => removeAcc(pick.id)} className="p-1 text-warm-charcoal/40 hover:text-red-500 flex-shrink-0"><X size={14} /></button>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-3 mb-3">
-                      <div>
-                        <label className="font-sub text-[10px] text-warm-charcoal uppercase tracking-[0.15em] mb-1 block">Name *</label>
-                        <input value={acc.name} onChange={e => { const a = [...form.accommodations]; a[i] = { ...a[i], name: e.target.value }; updateForm('accommodations', a); }} className="w-full h-[38px] px-3 font-sub font-normal text-[13px] text-warm-charcoal border border-[#E8E0D5] outline-none focus:border-terracotta" placeholder="e.g. Serengeti Serena Lodge" />
-                      </div>
-                      <div>
-                        <label className="font-sub text-[10px] text-warm-charcoal uppercase tracking-[0.15em] mb-1 block">Tier / Category</label>
-                        <input value={acc.tier} onChange={e => { const a = [...form.accommodations]; a[i] = { ...a[i], tier: e.target.value }; updateForm('accommodations', a); }} className="w-full h-[38px] px-3 font-sub font-normal text-[13px] text-warm-charcoal border border-[#E8E0D5] outline-none focus:border-terracotta" placeholder="e.g. Premium, Superior" />
-                      </div>
+                  )}
+
+                  {/* Catalog search */}
+                  <div>
+                    <label className="font-sub text-[11px] text-warm-charcoal uppercase tracking-[0.15em] mb-2 block">Add from catalog</label>
+                    <div className="relative mb-3">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-charcoal/30" size={14} />
+                      <input
+                        value={accSearch}
+                        onChange={e => setAccSearch(e.target.value)}
+                        placeholder="Search lodges & camps..."
+                        className="w-full h-[38px] pl-9 pr-3 border border-[#E8E0D5] outline-none focus:border-terracotta font-sub font-normal text-[13px] text-warm-charcoal"
+                      />
                     </div>
-                    <div className="grid grid-cols-2 gap-3 mb-3">
-                      <div>
-                        <label className="font-sub text-[10px] text-warm-charcoal uppercase tracking-[0.15em] mb-1 block">Nights</label>
-                        <input type="number" value={acc.nights} onChange={e => { const a = [...form.accommodations]; a[i] = { ...a[i], nights: +e.target.value }; updateForm('accommodations', a); }} className="w-full h-[38px] px-3 font-sub font-normal text-[13px] text-warm-charcoal border border-[#E8E0D5] outline-none focus:border-terracotta" min={1} />
-                      </div>
-                      <div>
-                        <label className="font-sub text-[10px] text-warm-charcoal uppercase tracking-[0.15em] mb-1 block">Rating (1-5)</label>
-                        <input type="number" value={acc.rating} onChange={e => { const a = [...form.accommodations]; a[i] = { ...a[i], rating: +e.target.value }; updateForm('accommodations', a); }} className="w-full h-[38px] px-3 font-sub font-normal text-[13px] text-warm-charcoal border border-[#E8E0D5] outline-none focus:border-terracotta" min={1} max={5} />
-                      </div>
-                    </div>
-                    <div className="mb-3">
-                      <label className="font-sub text-[10px] text-warm-charcoal uppercase tracking-[0.15em] mb-1 block">Image</label>
-                      {acc.image ? (
-                        <div className="relative group w-full h-[120px] border border-[#E8E0D5] overflow-hidden">
-                          <img src={acc.image} alt={acc.name} className="w-full h-full object-cover" />
-                          <button
-                            onClick={() => { const a = [...form.accommodations]; a[i] = { ...a[i], image: '' }; updateForm('accommodations', a); }}
-                            className="absolute top-2 right-2 bg-[#1C1812]/70 text-warm-canvas p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <Trash2 size={12} />
-                          </button>
-                        </div>
-                      ) : (
-                        <div
-                          onClick={() => {
-                            const input = document.createElement('input');
-                            input.type = 'file';
-                            input.accept = 'image/jpeg,image/png,image/webp';
-                            input.onchange = async (ev) => {
-                              const file = (ev.target as HTMLInputElement).files?.[0];
-                              if (!file) return;
-                              try {
-                                const urls = await uploadImages([file], 'accommodations');
-                                if (urls.length > 0) {
-                                  const a = [...form.accommodations]; a[i] = { ...a[i], image: urls[0] }; updateForm('accommodations', a);
-                                }
-                              } catch (err) { alert('Upload failed: ' + (err as Error).message); }
-                            };
-                            input.click();
-                          }}
-                          className="border-2 border-dashed border-[#E8E0D5] p-4 text-center cursor-pointer hover:border-terracotta transition-colors"
+                    <div className="grid grid-cols-2 gap-2 max-h-[300px] overflow-y-auto custom-scrollbar">
+                      {filteredCatalog.slice(0, 20).map(acc => (
+                        <button
+                          key={acc.id}
+                          onClick={() => toggleAcc(acc)}
+                          className="flex items-center gap-2 p-2 border border-[#E8E0D5] text-left hover:border-terracotta/50 hover:bg-terracotta/5 transition-colors"
                         >
-                          <Upload size={18} className="mx-auto text-warm-charcoal/50 mb-1" />
-                          <p className="font-sub font-normal text-[11px] text-warm-charcoal/50">Click to upload</p>
-                        </div>
+                          {acc.image ? (
+                            <img src={acc.image} alt={acc.name} className="w-10 h-8 object-cover flex-shrink-0" />
+                          ) : (
+                            <div className="w-10 h-8 bg-faded-sand/50 flex items-center justify-center flex-shrink-0">
+                              <Building2 size={12} className="text-warm-charcoal/20" />
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <p className="font-sub font-normal text-[12px] text-warm-charcoal truncate">{acc.name}</p>
+                            <p className="font-sub font-normal text-[9px] text-warm-charcoal/40">{acc.tier}{acc.location ? ` · ${acc.location}` : ''}</p>
+                          </div>
+                        </button>
+                      ))}
+                      {filteredCatalog.length === 0 && (
+                        <p className="col-span-2 text-center py-6 font-sub font-normal text-[12px] text-warm-charcoal/40">No matching accommodations. <Link to="/kijani-desk/accommodations" className="text-terracotta hover:underline">Add one →</Link></p>
                       )}
                     </div>
-                    <div>
-                      <label className="font-sub text-[10px] text-warm-charcoal uppercase tracking-[0.15em] mb-1 block">Website URL</label>
-                      <input value={acc.website} onChange={e => { const a = [...form.accommodations]; a[i] = { ...a[i], website: e.target.value }; updateForm('accommodations', a); }} className="w-full h-[38px] px-3 font-sub font-normal text-[13px] text-warm-charcoal border border-[#E8E0D5] outline-none focus:border-terracotta" placeholder="https://www.lodge-website.com" />
-                    </div>
                   </div>
-                ))}
-                <button onClick={() => updateForm('accommodations', [...form.accommodations, { ...emptyAccommodation }])} className="w-full py-3 border-2 border-dashed border-[#E8E0D5] font-sub font-normal text-[12px] text-terracotta uppercase tracking-[0.1em] hover:border-terracotta transition-colors">+ Add Accommodation</button>
-              </div>
-            )}
+                </div>
+              );
+            })()}
           </div>
 
           {/* Save Bar */}

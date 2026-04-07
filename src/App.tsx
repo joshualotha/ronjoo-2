@@ -23,6 +23,9 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import CookiePolicyPage from "./pages/CookiePolicyPage";
 import GalleryPage from "./pages/GalleryPage";
 import CookieConsentBanner from "./components/CookieConsentBanner";
+import BlogPage from "./pages/BlogPage";
+import BlogPostDetailPage from "./pages/BlogPostDetailPage";
+import ReviewsPage from "./pages/ReviewsPage";
 
 // Admin imports
 import { AdminProvider } from "./admin/context/AdminContext";
@@ -50,6 +53,8 @@ import AdminEmailTemplates from "./admin/pages/AdminEmailTemplates";
 import AdminPricing from "./admin/pages/AdminPricing";
 import AdminUsers from "./admin/pages/AdminUsers";
 import AdminProfile from "./admin/pages/AdminProfile";
+import AdminWildlife from "./admin/pages/AdminWildlife";
+import AdminAccommodations from "./admin/pages/AdminAccommodations";
 
 const queryClient = new QueryClient();
 
@@ -76,6 +81,9 @@ const App = () => (
           <Route path="/gallery" element={<GalleryPage />} />
           <Route path="/add-ons" element={<AddOnsPage />} />
           <Route path="/add-ons/:slug" element={<AddOnDetailPage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/:slug" element={<BlogPostDetailPage />} />
+          <Route path="/reviews" element={<ReviewsPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/cookie-policy" element={<CookiePolicyPage />} />
 
@@ -90,6 +98,8 @@ const App = () => (
             <Route path="safaris" element={<AdminSafaris />} />
             <Route path="safaris/new" element={<AdminSafaris />} />
             <Route path="destinations" element={<AdminDestinations />} />
+            <Route path="wildlife" element={<AdminWildlife />} />
+            <Route path="accommodations" element={<AdminAccommodations />} />
             <Route path="add-ons" element={<AdminAddOns />} />
             <Route path="blog" element={<AdminBlog />} />
             <Route path="faqs" element={<AdminFaqs />} />

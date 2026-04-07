@@ -72,6 +72,8 @@ export const seoApi = crudEndpoints('seo');
 export const emailTemplatesApi = crudEndpoints('email-templates');
 export const settingsAppApi = crudEndpoints('settings');
 export const usersApi = crudEndpoints('users');
+export const wildlifeApi = crudEndpoints('wildlife');
+export const accommodationsApi = crudEndpoints('accommodations');
 
 export const notificationsApi = {
   list: () => api.get<{ unreadCount: number; notifications: any[] }>('/kijani-desk/notifications'),

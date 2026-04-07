@@ -7,7 +7,6 @@ import { getDestinations } from "@/services/publicApi";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingElements from "@/components/FloatingElements";
-import heroImg from "@/assets/hero-savanna.jpg";
 
 type SafariCircuit = "northern" | "southern" | "coastal";
 
@@ -72,12 +71,14 @@ const DestinationsPage = () => {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative h-[50vh] overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${heroImg})` }}
+      <section className="relative h-[75vh] overflow-hidden">
+        <motion.div
+           className="absolute inset-0 bg-cover bg-center"
+           style={{ backgroundImage: `url(/assets/hero-destinationspage.jpg)` }}
+           animate={{ scale: [1, 1.05] }}
+           transition={{ duration: 12, ease: "linear", repeat: Infinity, repeatType: "mirror" }}
         />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.25), rgba(0,0,0,0.35))" }} />
+        <div className="absolute inset-0 bg-black/30" />
         <div className="relative z-10 h-full flex items-center justify-center">
           <motion.h1
             initial={{ opacity: 0, y: 30, filter: "blur(8px)" }}
@@ -205,7 +206,7 @@ const DestinationsPage = () => {
                     {/* Main Image */}
                     <div
                       className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-105"
-                      style={{ backgroundImage: `url(${dest.heroImage || dest.portraitImage || heroImg})` }}
+                      style={{ backgroundImage: `url(${dest.heroImage || dest.portraitImage || '/assets/hero-destinationspage.jpg'})` }}
                     />
                     
                     {/* Narrative Overlay */}

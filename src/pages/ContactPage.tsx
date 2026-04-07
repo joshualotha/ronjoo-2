@@ -5,7 +5,6 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingElements from "@/components/FloatingElements";
-import campImg from "@/assets/safari-camp.jpg";
 import { submitEnquiry } from "@/services/publicApi";
 import { ApiError } from "@/services/api";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
@@ -70,8 +69,8 @@ const ContactPage = () => {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative h-[45vh] overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${campImg})` }} />
+      <section className="relative h-[75vh] overflow-hidden">
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(/assets/hero-contactpage.jpg)` }} />
         <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.25), rgba(0,0,0,0.38))" }} />
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
           <motion.h1
@@ -375,7 +374,13 @@ const ContactPage = () => {
 
       {/* Final CTA */}
       <section className="relative h-[50vh] overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${campImg})` }} />
+        <motion.div
+           initial={{ scale: 1.15 }}
+           animate={{ scale: 1.05 }}
+           transition={{ duration: 15, ease: "linear", repeat: Infinity, repeatType: "mirror" }}
+           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+           style={{ backgroundImage: `url(/assets/hero-contactpage.jpg)` }}
+        />
         <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.35)" }} />
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
           <motion.h2

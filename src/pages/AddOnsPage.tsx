@@ -67,11 +67,11 @@ const AddOnsPage = () => {
       <Navbar />
 
       {/* HERO */}
-      <section className="relative h-[60vh] overflow-hidden">
+      <section className="relative h-[75vh] overflow-hidden">
         <motion.div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `url(https://images.unsplash.com/photo-1535532781581-9296b61fe1c9?w=1600&q=80)`,
+            backgroundImage: `url(/assets/hero-addonspage.jpg)`,
           }}
           animate={{ scale: [1, 1.06] }}
           transition={{ duration: 14, ease: "easeOut" }}
@@ -393,7 +393,7 @@ const AddOnsPage = () => {
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `url(https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?w=1600&q=80)`,
+            backgroundImage: `url(/assets/hero-addonspage.jpg)`,
           }}
         />
         <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.36)" }} />

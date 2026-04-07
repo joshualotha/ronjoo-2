@@ -22,6 +22,7 @@ interface FaqCategory {
   questions: FaqItem[];
 }
 
+
 /* ── Category SVG Icons ── */
 const CategoryIcon = ({ icon, size = 32, className = "" }: { icon: string; size?: number; className?: string }) => {
   const s = size;
@@ -363,11 +364,11 @@ const FaqPage = () => {
       <Navbar />
 
       {/* ─── HERO ─── */}
-      <section className="relative h-[55vh] flex items-end justify-center overflow-hidden">
+      <section className="relative h-[75vh] flex items-end justify-center overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `url('https://images.unsplash.com/photo-1516426122078-c23e76319801?w=1920&q=80')`,
+            backgroundImage: `url(/assets/hero-faqpage.jpg)`,
           }}
         />
         <div

@@ -23,7 +23,7 @@ class AdminSafariController extends Controller
 
     public function show(Safari $safari)
     {
-        $safari->load(['itineraryDays', 'accommodations']);
+        $safari->load(['itineraryDays', 'accommodations', 'accommodationsList']);
         return new SafariResource($safari);
     }
 
@@ -61,12 +61,17 @@ class AdminSafariController extends Controller
                 $safari->itineraryDays()->create($dayData);
             }
 
-            // Sync accommodations
+            // Sync accommodations (legacy)
             foreach ($accommodations as $acc) {
                 $safari->accommodations()->create($acc);
             }
 
-            return (new SafariResource($safari->load(['itineraryDays', 'accommodations'])))
+            // Sync normalized accommodation_ids if provided
+            if ($request->has('accommodation_ids')) {
+                $this->syncAccommodationIds($safari, $request->input('accommodation_ids', []));
+            }
+
+            return (new SafariResource($safari->load(['itineraryDays', 'accommodations', 'accommodationsList'])))
                 ->response()
                 ->setStatusCode(201);
         });
@@ -102,7 +107,7 @@ class AdminSafariController extends Controller
                 }
             }
 
-            // Replace accommodations if provided
+            // Replace accommodations if provided (legacy)
             if ($accommodations !== null) {
                 $safari->accommodations()->delete();
                 foreach ($accommodations as $acc) {
@@ -110,7 +115,12 @@ class AdminSafariController extends Controller
                 }
             }
 
-            return new SafariResource($safari->load(['itineraryDays', 'accommodations']));
+            // Sync normalized accommodation_ids if provided
+            if ($request->has('accommodation_ids')) {
+                $this->syncAccommodationIds($safari, $request->input('accommodation_ids', []));
+            }
+
+            return new SafariResource($safari->load(['itineraryDays', 'accommodations', 'accommodationsList']));
         });
     }
 
@@ -123,5 +133,17 @@ class AdminSafariController extends Controller
         });
 
         return response()->json(null, 204);
+    }
+
+    private function syncAccommodationIds(Safari $safari, array $entries): void
+    {
+        $syncData = [];
+        foreach ($entries as $i => $entry) {
+            $syncData[$entry['id']] = [
+                'nights'     => $entry['nights'] ?? 1,
+                'sort_order' => $entry['sort_order'] ?? $i,
+            ];
+        }
+        $safari->accommodationsList()->sync($syncData);
     }
 }

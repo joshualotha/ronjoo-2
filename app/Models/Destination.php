@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Destination extends Model
@@ -37,6 +38,22 @@ class Destination extends Model
     public function faqs(): HasMany
     {
         return $this->hasMany(DestinationFaq::class);
+    }
+
+    public function accommodationsList(): BelongsToMany
+    {
+        return $this->belongsToMany(Accommodation::class, 'accommodation_destination')
+            ->withPivot('sort_order')
+            ->withTimestamps()
+            ->orderByPivot('sort_order');
+    }
+
+    public function wildlifeAnimals(): BelongsToMany
+    {
+        return $this->belongsToMany(Wildlife::class, 'destination_wildlife')
+            ->withPivot('likelihood', 'custom_fact', 'sort_order')
+            ->withTimestamps()
+            ->orderByPivot('sort_order');
     }
 
     public function scopePublished($query)

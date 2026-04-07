@@ -134,7 +134,33 @@ const CustomSafariPage = () => {
     <div className="min-h-screen bg-warm-canvas">
       <Navbar />
 
-      <div className="pt-28 pb-20 px-6">
+      {/* Hero Section */}
+      <section className="relative h-[75vh] overflow-hidden flex items-end">
+        <div 
+          className="absolute inset-0 bg-cover bg-center" 
+          style={{ backgroundImage: `url(/assets/hero-customsafaripage.jpg)` }} 
+        />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-12 relative z-10 w-full mb-16">
+          <motion.span
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="label-accent text-gold text-[12px] mb-6 block tracking-[0.3em]"
+          >
+            BESPOKE JOURNEYS
+          </motion.span>
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="heading-display text-warm-canvas text-[48px] md:text-[72px] leading-tight"
+          >
+            Design Your <span className="italic">Dream Safari</span>
+          </motion.h1>
+        </div>
+      </section>
+
+      <div className="pt-20 pb-20 px-6">
         <div className="max-w-[900px] mx-auto">
           {/* Step indicator */}
           <div className="flex items-center justify-center gap-3 mb-16">

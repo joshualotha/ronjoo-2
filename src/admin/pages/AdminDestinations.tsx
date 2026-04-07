@@ -1,8 +1,8 @@
-import { useState, useRef } from 'react';
-import { Plus, Pencil, Trash2, Upload, Eye, GripVertical, Loader2 } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Plus, Pencil, Trash2, Upload, Eye, GripVertical, Loader2, Search, PawPrint, Check, Building2, X } from 'lucide-react';
 import AdminTopBar from '../components/AdminTopBar';
 import { useAdminCrud } from '../hooks/useAdminCrud';
-import { destinationsApi, uploadImages } from '../../services/adminApi';
+import { destinationsApi, wildlifeApi, accommodationsApi, uploadImages } from '../../services/adminApi';
 
 interface Destination {
   id: string;
@@ -25,10 +25,11 @@ interface DestinationForm {
   heroImage: string;
   portraitImage: string;
   quickFacts: { label: string; value: string; icon: string }[];
-  wildlife: { name: string; likelihood: string; fact: string; image: string }[];
+  wildlifeIds: { id: number; likelihood: string; custom_fact: string; sort_order: number }[];
   experiences: { title: string; description: string; tags: string }[];
   faqs: { question: string; answer: string }[];
   accommodations: { name: string; tier: string; stars: number; description: string; amenities: string; image: string }[];
+  accommodationIds: { id: number; sort_order: number }[];
   metaTitle: string;
   metaDescription: string;
 }
@@ -49,28 +50,35 @@ const emptyForm: DestinationForm = {
   name: '', slug: '', region: 'Northern Circuit', tagline: '', status: 'draft', overview: '', pullQuote: '',
   heroImage: '', portraitImage: '',
   quickFacts: [{ label: 'Wildlife', value: '', icon: 'paw' }, { label: 'Best Season', value: '', icon: 'calendar' }, { label: 'Avg Temp', value: '', icon: 'thermometer' }],
-  wildlife: [{ name: '', likelihood: 'Common', fact: '', image: '' }],
+  wildlifeIds: [],
   experiences: [{ title: '', description: '', tags: '' }],
   faqs: [{ question: '', answer: '' }],
   accommodations: [{ name: '', tier: 'Luxury', stars: 5, description: '', amenities: '', image: '' }],
+  accommodationIds: [],
   metaTitle: '', metaDescription: ''
 };
 
 export default function AdminDestinations() {
   const { items: destinations, isLoading, create, update, remove } = useAdminCrud('destinations', destinationsApi);
+  const { items: allWildlife } = useAdminCrud('wildlife', wildlifeApi);
   const [editing, setEditing] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [activeTab, setActiveTab] = useState('basic');
   const [form, setForm] = useState<DestinationForm>({ ...emptyForm });
   const [isHydrating, setIsHydrating] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [wildlifeSearch, setWildlifeSearch] = useState('');
+  const [accCatalog, setAccCatalog] = useState<any[]>([]);
+  const [accSearch, setAccSearch] = useState('');
   const heroImageInputRef = useRef<HTMLInputElement>(null);
   const portraitImageInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
-  const wildlifeImageInputRef = useRef<HTMLInputElement>(null);
   const accommodationImageInputRef = useRef<HTMLInputElement>(null);
-  const currentWildlifeIndex = useRef<number | null>(null);
   const currentAccommodationIndex = useRef<number | null>(null);
+
+  useEffect(() => {
+    accommodationsApi.list().then((data: any) => setAccCatalog(Array.isArray(data) ? data : []));
+  }, []);
 
   const tabs = [
     { id: 'basic', label: 'Basic Info' },
@@ -106,12 +114,12 @@ export default function AdminDestinations() {
             value: f.value ?? '',
             icon: f.icon ?? 'map-pin',
           })) ?? emptyForm.quickFacts,
-          wildlife: (full as any).wildlife?.map((w: any) => ({
-            name: w.name ?? '',
+          wildlifeIds: ((full as any).wildlife ?? []).map((w: any, i: number) => ({
+            id: w.id,
             likelihood: w.likelihood ?? 'Common',
-            fact: w.fact ?? '',
-            image: w.image ?? '',
-          })) ?? emptyForm.wildlife,
+            custom_fact: w.custom_fact ?? '',
+            sort_order: w.sort_order ?? i,
+          })).filter((w: any) => w.id),
           experiences: experiences.length
             ? experiences.map((e: any) => ({
               title: e.title ?? '',
@@ -131,6 +139,11 @@ export default function AdminDestinations() {
             amenities: Array.isArray(a.amenities) ? a.amenities.join(', ') : (a.amenities ?? ''),
             image: a.image ?? '',
           })) ?? emptyForm.accommodations,
+          accommodationIds: Array.isArray((full as any).accommodations)
+            ? (full as any).accommodations
+                .filter((a: any) => a.id)
+                .map((a: any, i: number) => ({ id: a.id, sort_order: a.sort_order ?? i }))
+            : [],
           metaTitle: (full as any).metaTitle ?? '',
           metaDescription: (full as any).metaDescription ?? '',
         });
@@ -154,9 +167,12 @@ export default function AdminDestinations() {
         .filter((f) => (f.label || '').trim() && (f.value || '').trim())
         .map(f => ({ ...f, icon: f.icon || 'map-pin' }));
       
-      const cleanWildlife = (form.wildlife ?? [])
-        .filter((w) => (w.name || '').trim())
-        .map(w => ({ ...w, likelihood: w.likelihood || 'Common' }));
+      const cleanWildlifeIds = (form.wildlifeIds ?? []).map((w, i) => ({
+        id: w.id,
+        likelihood: w.likelihood || 'Common',
+        custom_fact: w.custom_fact || null,
+        sort_order: i,
+      }));
       
       const cleanExperiences = (form.experiences ?? [])
         .filter((e) => (e.title || '').trim())
@@ -190,10 +206,11 @@ export default function AdminDestinations() {
         overview: form.overview.split('\n\n').filter(p => p.trim()),
         pullQuote: form.pullQuote,
         quickFacts: cleanQuickFacts,
-        wildlife: cleanWildlife,
+        wildlife_ids: cleanWildlifeIds,
         experiences: cleanExperiences,
         faqs: cleanFaqs,
         accommodations: cleanAccommodations,
+        accommodation_ids: (form.accommodationIds ?? []).map((a, i) => ({ id: a.id, sort_order: i })),
         metaTitle: form.metaTitle,
         metaDescription: form.metaDescription,
       };
@@ -210,23 +227,17 @@ export default function AdminDestinations() {
     }
   };
 
-  const handleWildlifeImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0 || currentWildlifeIndex.current === null) return;
-    setIsUploading(true);
-    try {
-      const urls = await uploadImages(files, 'destinations');
-      if (urls.length > 0) {
-        const wl = [...form.wildlife];
-        wl[currentWildlifeIndex.current] = { ...wl[currentWildlifeIndex.current], image: urls[0] };
-        updateForm('wildlife', wl);
-      }
-    } catch (err) {
-      alert('Upload failed');
-    } finally {
-      setIsUploading(false);
-      if (wildlifeImageInputRef.current) wildlifeImageInputRef.current.value = '';
+  // Wildlife picker helpers
+  const isWildlifeSelected = (wId: number) => form.wildlifeIds.some(w => w.id === wId);
+  const toggleWildlife = (wId: number) => {
+    if (isWildlifeSelected(wId)) {
+      updateForm('wildlifeIds', form.wildlifeIds.filter(w => w.id !== wId));
+    } else {
+      updateForm('wildlifeIds', [...form.wildlifeIds, { id: wId, likelihood: 'Common', custom_fact: '', sort_order: form.wildlifeIds.length }]);
     }
+  };
+  const updateWildlifeEntry = (wId: number, key: string, value: string) => {
+    updateForm('wildlifeIds', form.wildlifeIds.map(w => w.id === wId ? { ...w, [key]: value } : w));
   };
 
   const handleAccommodationImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -452,31 +463,100 @@ export default function AdminDestinations() {
             )}
 
             {activeTab === 'wildlife' && (
-              <div className="space-y-4">
-                <input ref={wildlifeImageInputRef} type="file" className="hidden" accept="image/*" onChange={handleWildlifeImageUpload} />
-                <label className="font-sub text-[11px] text-warm-charcoal uppercase tracking-[0.15em] mb-2 block">Wildlife</label>
-                {form.wildlife.map((w, i) => (
-                  <div key={i} className="border border-[#E8E0D5] p-5 bg-warm-canvas/30 group relative">
-                    <button onClick={() => updateForm('wildlife', form.wildlife.filter((_, j) => j !== i))} className="absolute top-2 right-2 p-1 text-warm-charcoal/30 hover:text-terracotta opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={14} /></button>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                       <div className="space-y-2">
-                        <div onClick={() => { currentWildlifeIndex.current = i; wildlifeImageInputRef.current?.click(); }} className="w-full aspect-square border-2 border-dashed border-[#E8E0D5] flex flex-col items-center justify-center cursor-pointer hover:border-terracotta transition-colors overflow-hidden">
-                          {w.image ? <img src={w.image} className="w-full h-full object-cover" /> : <><Upload size={16} className="text-warm-charcoal/40 mb-1" /><span className="text-[10px] text-warm-charcoal/40">Upload Photo</span></>}
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="font-sub text-[11px] text-warm-charcoal uppercase tracking-[0.15em] block">Select Wildlife</label>
+                    <p className="font-sub font-normal text-[11px] text-warm-charcoal/50 mt-1">{form.wildlifeIds.length} selected · Click to toggle</p>
+                  </div>
+                  <div className="relative w-[220px]">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-charcoal/30" size={14} />
+                    <input
+                      value={wildlifeSearch}
+                      onChange={e => setWildlifeSearch(e.target.value)}
+                      placeholder="Search animals..."
+                      className="w-full h-[36px] pl-9 pr-3 border border-[#E8E0D5] outline-none focus:border-terracotta font-sub font-normal text-[12px] text-warm-charcoal"
+                    />
+                  </div>
+                </div>
+
+                {/* Available animals grid */}
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {allWildlife
+                    .filter((a: any) => !wildlifeSearch || a.name?.toLowerCase().includes(wildlifeSearch.toLowerCase()))
+                    .map((animal: any) => {
+                      const selected = isWildlifeSelected(animal.id);
+                      return (
+                        <div
+                          key={animal.id}
+                          onClick={() => toggleWildlife(animal.id)}
+                          className={`cursor-pointer border p-3 transition-all relative ${
+                            selected
+                              ? 'border-terracotta bg-terracotta/5'
+                              : 'border-[#E8E0D5] hover:border-terracotta/40'
+                          }`}
+                        >
+                          {selected && (
+                            <div className="absolute top-2 right-2 w-5 h-5 bg-terracotta flex items-center justify-center">
+                              <Check size={12} className="text-warm-canvas" />
+                            </div>
+                          )}
+                          <div className="w-full aspect-[4/3] bg-faded-sand/30 mb-2 overflow-hidden">
+                            {animal.image ? (
+                              <img src={animal.image} alt={animal.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <PawPrint size={20} className="text-warm-charcoal/15" />
+                              </div>
+                            )}
+                          </div>
+                          <p className="font-sub font-normal text-[13px] text-warm-charcoal">{animal.name}</p>
+                          <p className="font-sub font-normal text-[10px] text-terracotta">{animal.category}</p>
                         </div>
-                      </div>
-                      <div className="md:col-span-3 space-y-3">
-                        <div className="grid grid-cols-2 gap-3">
-                          <input value={w.name} onChange={e => { const wl = [...form.wildlife]; wl[i] = { ...wl[i], name: e.target.value }; updateForm('wildlife', wl); }} className="h-[38px] px-3 font-sub font-normal text-[13px] text-warm-charcoal border border-[#E8E0D5] outline-none focus:border-terracotta" placeholder="Animal name" />
-                          <select value={w.likelihood} onChange={e => { const wl = [...form.wildlife]; wl[i] = { ...wl[i], likelihood: e.target.value }; updateForm('wildlife', wl); }} className="h-[38px] px-3 font-sub font-normal text-[13px] text-warm-charcoal border border-[#E8E0D5] outline-none focus:border-terracotta">
-                            {['Very Common', 'Common', 'Rare', 'Endangered'].map(l => <option key={l}>{l}</option>)}
-                          </select>
-                        </div>
-                        <input value={w.fact} onChange={e => { const wl = [...form.wildlife]; wl[i] = { ...wl[i], fact: e.target.value }; updateForm('wildlife', wl); }} className="w-full h-[38px] px-3 font-sub font-normal text-[13px] text-warm-charcoal border border-[#E8E0D5] outline-none focus:border-terracotta" placeholder="One-line interesting fact..." />
-                      </div>
+                      );
+                    })}
+                </div>
+
+                {/* Selected wildlife — configure likelihood per destination */}
+                {form.wildlifeIds.length > 0 && (
+                  <div className="mt-6 pt-6 border-t border-[#E8E0D5]">
+                    <label className="font-sub text-[11px] text-warm-charcoal uppercase tracking-[0.15em] mb-4 block">Configure Per-Destination Details</label>
+                    <div className="space-y-3">
+                      {form.wildlifeIds.map((entry) => {
+                        const animal = allWildlife.find((a: any) => a.id === entry.id) as any;
+                        if (!animal) return null;
+                        return (
+                          <div key={entry.id} className="flex items-center gap-4 p-3 border border-[#E8E0D5] bg-warm-canvas/30">
+                            <div className="w-10 h-10 bg-faded-sand/30 overflow-hidden shrink-0">
+                              {animal.image ? (
+                                <img src={animal.image} alt={animal.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center"><PawPrint size={14} className="text-warm-charcoal/15" /></div>
+                              )}
+                            </div>
+                            <p className="font-sub font-normal text-[13px] text-warm-charcoal w-[120px] shrink-0">{animal.name}</p>
+                            <select
+                              value={entry.likelihood}
+                              onChange={e => updateWildlifeEntry(entry.id, 'likelihood', e.target.value)}
+                              className="h-[34px] px-2 font-sub font-normal text-[12px] text-warm-charcoal border border-[#E8E0D5] outline-none focus:border-terracotta"
+                            >
+                              {['Very Common', 'Common', 'Uncommon', 'Rare', 'Seasonal'].map(l => <option key={l}>{l}</option>)}
+                            </select>
+                            <input
+                              value={entry.custom_fact}
+                              onChange={e => updateWildlifeEntry(entry.id, 'custom_fact', e.target.value)}
+                              placeholder="Custom fact for this destination (optional)"
+                              className="flex-1 h-[34px] px-3 font-sub font-normal text-[12px] text-warm-charcoal border border-[#E8E0D5] outline-none focus:border-terracotta"
+                            />
+                            <button onClick={() => toggleWildlife(entry.id)} className="p-1 text-warm-charcoal/30 hover:text-red-500 transition-colors shrink-0">
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
-                ))}
-                <button onClick={() => updateForm('wildlife', [...form.wildlife, { name: '', likelihood: 'Common', fact: '', image: '' }])} className="font-sub font-normal text-[12px] text-terracotta hover:underline">+ Add Animal</button>
+                )}
               </div>
             )}
 
@@ -497,38 +577,99 @@ export default function AdminDestinations() {
               </div>
             )}
 
-            {activeTab === 'accommodation' && (
-              <div className="space-y-4">
-                <input ref={accommodationImageInputRef} type="file" className="hidden" accept="image/*" onChange={handleAccommodationImageUpload} />
-                <label className="font-sub text-[11px] text-warm-charcoal uppercase tracking-[0.15em] mb-2 block">Accommodations</label>
-                {form.accommodations.map((acc, i) => (
-                  <div key={i} className="border border-[#E8E0D5] p-5 bg-warm-canvas/30 group relative">
-                    <button onClick={() => updateForm('accommodations', form.accommodations.filter((_, j) => j !== i))} className="absolute top-2 right-2 p-1 text-warm-charcoal/30 hover:text-terracotta opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={14} /></button>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {activeTab === 'accommodation' && (() => {
+              const selectedIds = new Set(form.accommodationIds.map(a => a.id));
+              const filteredCatalog = accCatalog.filter(a => {
+                if (selectedIds.has(a.id)) return false;
+                if (!accSearch) return true;
+                return a.name?.toLowerCase().includes(accSearch.toLowerCase()) || a.location?.toLowerCase().includes(accSearch.toLowerCase());
+              });
+
+              const toggleAcc = (acc: any) => {
+                if (selectedIds.has(acc.id)) {
+                  updateForm('accommodationIds', form.accommodationIds.filter(a => a.id !== acc.id));
+                } else {
+                  updateForm('accommodationIds', [...form.accommodationIds, { id: acc.id, sort_order: form.accommodationIds.length }]);
+                }
+              };
+
+              const removeAcc = (accId: number) => {
+                updateForm('accommodationIds', form.accommodationIds.filter(a => a.id !== accId));
+              };
+
+              const getAccDetail = (id: number) => accCatalog.find(a => a.id === id);
+
+              return (
+                <div className="space-y-6">
+                  {/* Selected accommodations */}
+                  {form.accommodationIds.length > 0 && (
+                    <div>
+                      <label className="font-sub text-[11px] text-warm-charcoal uppercase tracking-[0.15em] mb-3 block">Selected Lodges & Camps ({form.accommodationIds.length})</label>
                       <div className="space-y-2">
-                        <div onClick={() => { currentAccommodationIndex.current = i; accommodationImageInputRef.current?.click(); }} className="w-full aspect-video border-2 border-dashed border-[#E8E0D5] flex flex-col items-center justify-center cursor-pointer hover:border-terracotta transition-colors overflow-hidden">
-                          {acc.image ? <img src={acc.image} className="w-full h-full object-cover" /> : <><Upload size={16} className="text-warm-charcoal/40 mb-1" /><span className="text-[10px] text-warm-charcoal/40">Lodge Image</span></>}
-                        </div>
-                      </div>
-                      <div className="md:col-span-3 space-y-3">
-                        <div className="grid grid-cols-3 gap-3">
-                          <input value={acc.name} onChange={e => { const a = [...form.accommodations]; a[i] = { ...a[i], name: e.target.value }; updateForm('accommodations', a); }} className="h-[38px] px-3 font-sub font-normal text-[13px] text-warm-charcoal border border-[#E8E0D5] outline-none focus:border-terracotta" placeholder="Lodge name" />
-                          <select value={acc.tier} onChange={e => { const a = [...form.accommodations]; a[i] = { ...a[i], tier: e.target.value }; updateForm('accommodations', a); }} className="h-[38px] px-3 font-sub font-normal text-[13px] text-warm-charcoal border border-[#E8E0D5] outline-none focus:border-terracotta">
-                            {['Budget', 'Classic', 'Luxury', 'Premium'].map(t => <option key={t} value={t}>{t}</option>)}
-                          </select>
-                          <select value={acc.stars} onChange={e => { const a = [...form.accommodations]; a[i] = { ...a[i], stars: parseInt(e.target.value) }; updateForm('accommodations', a); }} className="h-[38px] px-3 font-sub font-normal text-[13px] text-warm-charcoal border border-[#E8E0D5] outline-none focus:border-terracotta">
-                            {[1, 2, 3, 4, 5].map(s => <option key={s} value={s}>{s} Stars</option>)}
-                          </select>
-                        </div>
-                        <input value={acc.amenities} onChange={e => { const a = [...form.accommodations]; a[i] = { ...a[i], amenities: e.target.value }; updateForm('accommodations', a); }} className="w-full h-[38px] px-3 font-sub font-normal text-[13px] text-warm-charcoal border border-[#E8E0D5] outline-none focus:border-terracotta" placeholder="Amenities (Wifi, Pool, Spa...)" />
-                        <textarea value={acc.description} onChange={e => { const a = [...form.accommodations]; a[i] = { ...a[i], description: e.target.value }; updateForm('accommodations', a); }} rows={2} className="w-full px-3 py-2 font-sub font-normal text-[13px] text-warm-charcoal border border-[#E8E0D5] outline-none focus:border-terracotta resize-none" placeholder="Short description of the lodge..." />
+                        {form.accommodationIds.map((pick) => {
+                          const detail = getAccDetail(pick.id);
+                          if (!detail) return null;
+                          return (
+                            <div key={pick.id} className="flex items-center gap-3 p-3 border border-[#E8E0D5] bg-[#FBF8F3]">
+                              {detail.image ? (
+                                <img src={detail.image} alt={detail.name} className="w-16 h-12 object-cover flex-shrink-0" />
+                              ) : (
+                                <div className="w-16 h-12 bg-faded-sand/50 flex items-center justify-center flex-shrink-0">
+                                  <Building2 size={16} className="text-warm-charcoal/20" />
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <p className="font-sub font-normal text-[13px] text-warm-charcoal truncate">{detail.name}</p>
+                                <p className="font-sub font-normal text-[10px] text-warm-charcoal/50">{detail.tier}{detail.location ? ` · ${detail.location}` : ''}</p>
+                              </div>
+                              <button onClick={() => removeAcc(pick.id)} className="p-1 text-warm-charcoal/40 hover:text-red-500 flex-shrink-0"><X size={14} /></button>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
+                  )}
+
+                  {/* Catalog search */}
+                  <div>
+                    <label className="font-sub text-[11px] text-warm-charcoal uppercase tracking-[0.15em] mb-2 block">Add from catalog</label>
+                    <div className="relative mb-3">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-charcoal/30" size={14} />
+                      <input
+                        value={accSearch}
+                        onChange={e => setAccSearch(e.target.value)}
+                        placeholder="Search lodges & camps..."
+                        className="w-full h-[38px] pl-9 pr-3 border border-[#E8E0D5] outline-none focus:border-terracotta font-sub font-normal text-[13px] text-warm-charcoal"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 max-h-[300px] overflow-y-auto custom-scrollbar">
+                      {filteredCatalog.slice(0, 20).map(acc => (
+                        <button
+                          key={acc.id}
+                          onClick={() => toggleAcc(acc)}
+                          className="flex items-center gap-2 p-2 border border-[#E8E0D5] text-left hover:border-terracotta/50 hover:bg-terracotta/5 transition-colors"
+                        >
+                          {acc.image ? (
+                            <img src={acc.image} alt={acc.name} className="w-10 h-8 object-cover flex-shrink-0" />
+                          ) : (
+                            <div className="w-10 h-8 bg-faded-sand/50 flex items-center justify-center flex-shrink-0">
+                              <Building2 size={12} className="text-warm-charcoal/20" />
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <p className="font-sub font-normal text-[12px] text-warm-charcoal truncate">{acc.name}</p>
+                            <p className="font-sub font-normal text-[9px] text-warm-charcoal/40">{acc.tier}{acc.location ? ` · ${acc.location}` : ''}</p>
+                          </div>
+                        </button>
+                      ))}
+                      {filteredCatalog.length === 0 && (
+                        <p className="col-span-2 text-center py-6 font-sub font-normal text-[12px] text-warm-charcoal/40">No matching accommodations.</p>
+                      )}
+                    </div>
                   </div>
-                ))}
-                <button onClick={() => updateForm('accommodations', [...form.accommodations, { name: '', tier: 'Luxury', stars: 5, description: '', amenities: '', image: '' }])} className="font-sub font-normal text-[12px] text-terracotta hover:underline">+ Add Accommodation</button>
-              </div>
-            )}
+                </div>
+              );
+            })()}
 
             {activeTab === 'faq' && (
               <div className="space-y-3">

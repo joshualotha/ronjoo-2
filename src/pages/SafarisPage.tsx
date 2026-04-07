@@ -7,7 +7,6 @@ import { getSafaris } from "@/services/publicApi";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingElements from "@/components/FloatingElements";
-import heroImg from "@/assets/hero-savanna.jpg";
 
 const categories = [
   { key: "all", label: "All" },
@@ -55,10 +54,12 @@ const SafarisPage = () => {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative h-[50vh] overflow-hidden">
-        <div
+      <section className="relative h-[75vh] overflow-hidden">
+        <motion.div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${heroImg})` }}
+          style={{ backgroundImage: `url(/assets/hero-safarispage.jpg)` }}
+          animate={{ scale: [1, 1.05] }}
+          transition={{ duration: 12, ease: "linear", repeat: Infinity, repeatType: "mirror" }}
         />
         <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.25), rgba(0,0,0,0.35))" }} />
         <div className="relative z-10 h-full flex items-center justify-center">

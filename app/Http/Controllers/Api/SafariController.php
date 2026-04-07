@@ -23,6 +23,7 @@ class SafariController extends Controller
         $safari->load([
             'itineraryDays',
             'accommodations',
+            'accommodationsList',
             'departures' => fn ($q) => $q->where('status', 'open'),
             'reviews' => fn ($q) => $q->where('status', 'approved'),
         ]);

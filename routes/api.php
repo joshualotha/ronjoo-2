@@ -8,7 +8,8 @@ use App\Http\Controllers\Api\Admin\{
     AdminSafariController, AdminDestinationController, AdminReviewController,
     AdminBlogPostController, AdminFaqController, AdminTravelGuideController,
     AdminTeamMemberController, AdminSubscriberController, AdminAddOnController,
-    AdminGalleryImageController
+    AdminGalleryImageController, AdminWildlifeController,
+    AdminAccommodationController
 };
 use App\Http\Middleware\EnsureAdmin;
 
@@ -40,8 +41,8 @@ Route::get('/add-ons/{addOn}',   [AddOnController::class, 'show']);
 
 Route::get('/faqs',              [FaqController::class, 'index']);
 
-Route::get('/travel-guides',              [TravelGuideController::class, 'index']);
-Route::get('/travel-guides/{travelGuide}',[TravelGuideController::class, 'show']);
+Route::get('/travel-guides',              [AdminTravelGuideController::class, 'index']);
+Route::get('/travel-guides/{travelGuide}',[AdminTravelGuideController::class, 'show']);
 
 Route::get('/reviews',           [ReviewController::class, 'index']);
 Route::post('/reviews',          [ReviewController::class, 'store'])
@@ -53,6 +54,9 @@ Route::get('/blog-posts/{blogPost}',[BlogPostController::class, 'show']);
 Route::get('/departures',           [DepartureController::class, 'index']);
 Route::get('/settings',             [SettingController::class, 'index']);
 Route::get('/gallery-images',       [AdminGalleryImageController::class, 'index']);
+Route::get('/team',                 [AdminTeamMemberController::class, 'index']);
+Route::get('/wildlife',             [AdminWildlifeController::class, 'index']);
+Route::get('/accommodations',       [AdminAccommodationController::class, 'index']);
 
 /*
 |--------------------------------------------------------------------------
@@ -149,6 +153,8 @@ Route::middleware(['auth:sanctum', EnsureAdmin::class])->prefix('kijani-desk')->
     Route::apiResource('email-templates', AdminEmailTemplateController::class);
     Route::apiResource('promotions', AdminPromotionController::class);
     Route::apiResource('waitlists', AdminWaitlistController::class);
+    Route::apiResource('wildlife', AdminWildlifeController::class);
+    Route::apiResource('accommodations', AdminAccommodationController::class);
     Route::get('/notifications', [AdminNotificationController::class, 'index']);
     Route::patch('/notifications/{notification}/read', [AdminNotificationController::class, 'read']);
     Route::patch('/notifications/read-all', [AdminNotificationController::class, 'readAll']);

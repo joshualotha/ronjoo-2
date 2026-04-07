@@ -59,6 +59,17 @@ class StoreDestinationRequest extends FormRequest
             $accs = array_filter($this->input('accommodations', []), fn($a) => !empty($a['name']));
             $this->merge(['accommodations' => array_values($accs)]);
         }
+
+        // Normalize experiences tags to arrays
+        if ($this->has('experiences')) {
+            $exps = $this->input('experiences', []);
+            foreach ($exps as &$exp) {
+                if (isset($exp['tags']) && is_string($exp['tags'])) {
+                    $exp['tags'] = array_values(array_filter(array_map('trim', explode(',', $exp['tags']))));
+                }
+            }
+            $this->merge(['experiences' => $exps]);
+        }
     }
 
     public function rules(): array
@@ -83,7 +94,8 @@ class StoreDestinationRequest extends FormRequest
             'experiences'    => 'nullable|array',
             'experiences.*.title'       => 'required|string|max:255',
             'experiences.*.description' => 'nullable|string|max:5000',
-            'experiences.*.tags'        => 'nullable|string|max:500',
+            'experiences.*.tags'        => 'nullable|array',
+            'experiences.*.tags.*'       => 'string|max:100',
             'faqs'           => 'nullable|array',
             'faqs.*.question' => 'required|string|max:500',
             'faqs.*.answer'   => 'required|string|max:5000',
@@ -98,6 +110,14 @@ class StoreDestinationRequest extends FormRequest
             'portrait_image' => 'nullable|string|max:500',
             'gallery'        => 'nullable|array',
             'gallery.*'      => 'required|string|max:500',
+            'wildlife_ids'   => 'nullable|array',
+            'wildlife_ids.*.id'         => 'required|integer|exists:wildlife,id',
+            'wildlife_ids.*.likelihood' => 'nullable|string|max:100',
+            'wildlife_ids.*.custom_fact'=> 'nullable|string|max:1000',
+            'wildlife_ids.*.sort_order' => 'nullable|integer',
+            'accommodation_ids'   => 'nullable|array',
+            'accommodation_ids.*.id'         => 'required|integer|exists:accommodations,id',
+            'accommodation_ids.*.sort_order' => 'nullable|integer',
             'meta_title'     => 'nullable|string|max:60',
             'meta_description' => 'nullable|string|max:160',
         ];

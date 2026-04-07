@@ -26,7 +26,11 @@ class AdminGalleryImageController extends Controller
             $query->where('category', $category);
         }
 
-        return GalleryImageResource::collection($query->paginate(60));
+        if ($request->is('api/kijani-desk/*')) {
+            return GalleryImageResource::collection($query->paginate(60));
+        }
+
+        return GalleryImageResource::collection($query->get());
     }
 
     public function show(GalleryImage $galleryImage)

@@ -60,6 +60,10 @@ export const getPublicSettings = (groups = 'general,social,homepage,integrations
 export const getGalleryImages = () =>
   api.get<any[]>('/gallery-images');
 
+// ─── Team Members ───────────────────────────────────
+export const getTeamMembers = () =>
+  api.get<any[]>('/team');
+
 // ─── Public Form Submissions ───────────────────────
 export const submitEnquiry = (data: Record<string, unknown>) =>
   api.post('/enquiries', data);

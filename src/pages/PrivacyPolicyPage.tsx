@@ -180,9 +180,13 @@ const PrivacyPolicyPage = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-6 lg:px-12 bg-deep-earth overflow-hidden">
-        <div className="absolute inset-0 noise-overlay opacity-[0.03]" />
-        <div className="max-w-[1400px] mx-auto relative z-10">
+      <section className="relative h-[65vh] overflow-hidden flex items-center">
+        <div 
+          className="absolute inset-0 bg-cover bg-center" 
+          style={{ backgroundImage: `url(/assets/hero-privacypolicypage.jpg)` }} 
+        />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-12 relative z-10 w-full">
           <motion.span
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

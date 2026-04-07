@@ -14,7 +14,9 @@ export default function AdminTeam() {
     experience: 0,
     languagesText: '',
     specializationsText: '',
-    showOnWebsite: false,
+    showOnWebsite: true,
+    photo: '',
+    bio: '',
   });
 
   const openCreate = () => {
@@ -25,7 +27,9 @@ export default function AdminTeam() {
       experience: 0,
       languagesText: '',
       specializationsText: '',
-      showOnWebsite: false,
+      showOnWebsite: true,
+      photo: '',
+      bio: '',
     });
     setShowForm(true);
   };
@@ -40,6 +44,8 @@ export default function AdminTeam() {
       languagesText: Array.isArray(member.languages) ? member.languages.join(', ') : '',
       specializationsText: Array.isArray(member.specializations) ? member.specializations.join(', ') : '',
       showOnWebsite: !!member.showOnWebsite,
+      photo: member.photo ?? '',
+      bio: member.bio ?? '',
     });
     setShowForm(true);
   };
@@ -61,6 +67,8 @@ export default function AdminTeam() {
       languages,
       specializations,
       showOnWebsite: !!form.showOnWebsite,
+      photo: form.photo,
+      bio: form.bio,
     };
 
     if (editingId) await update(editingId, payload);
@@ -99,8 +107,12 @@ export default function AdminTeam() {
           {team.map((member: any) => (
             <div key={member.id} className="bg-[#FFFFFF] border border-[#E8E0D5] p-6">
               <div className="flex items-start justify-between mb-4">
-                <div className="w-14 h-14 bg-terracotta/10 flex items-center justify-center font-display italic text-[24px] text-terracotta">
-                  {member.name.charAt(0)}
+                <div className="w-14 h-14 bg-terracotta/10 overflow-hidden flex items-center justify-center font-display italic text-[24px] text-terracotta">
+                  {member.photo ? (
+                    <img src={member.photo} alt={member.name} className="w-full h-full object-cover" />
+                  ) : (
+                    member.name.charAt(0)
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <button onClick={() => openEdit(member)} className="p-1.5 text-warm-charcoal hover:text-warm-charcoal transition-colors" aria-label="Edit team member">
@@ -138,8 +150,8 @@ export default function AdminTeam() {
       {/* Create/Edit Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-          <div className="bg-[#FFFFFF] w-full max-w-[520px] p-6 border border-[#E8E0D5]">
-            <div className="flex items-center justify-between mb-4">
+          <div className="bg-[#FFFFFF] w-full max-w-[520px] p-6 border border-[#E8E0D5] max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div className="flex items-center justify-between mb-4 sticky top-0 bg-white z-20 pb-2">
               <h2 className="font-display italic text-[20px] text-warm-charcoal">
                 {editingId ? 'Edit Team Member' : 'New Team Member'}
               </h2>
@@ -182,6 +194,45 @@ export default function AdminTeam() {
               <div className="space-y-1">
                 <label className="font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em]">Specializations (comma-separated)</label>
                 <textarea value={form.specializationsText} onChange={e => setForm({ ...form, specializationsText: e.target.value })} rows={3} className="w-full border border-[#E8E0D5] outline-none focus:border-terracotta px-3 py-2 resize-none" />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em]">Photo URL</label>
+                <div className="flex gap-2">
+                  <input value={form.photo} onChange={e => setForm({ ...form, photo: e.target.value })} className="flex-1 h-[40px] px-3 border border-[#E8E0D5] outline-none focus:border-terracotta" />
+                  <label className="cursor-pointer h-[40px] px-4 bg-faded-sand text-warm-charcoal font-sub font-normal text-[11px] uppercase tracking-[0.1em] flex items-center justify-center hover:bg-gold/10 transition-colors">
+                    Upload
+                    <input 
+                      type="file" 
+                      className="hidden" 
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        try {
+                          const { uploadImages } = await import('../../services/adminApi');
+                          const urls = await uploadImages([file]);
+                          if (urls && urls.length > 0) {
+                            setForm({ ...form, photo: urls[0] });
+                          }
+                        } catch (err) {
+                          console.error("Upload failed", err);
+                          alert("Upload failed. Please try again.");
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+                {form.photo && (
+                  <div className="mt-2 w-20 h-20 border border-[#E8E0D5] overflow-hidden">
+                    <img src={form.photo} alt="Preview" className="w-full h-full object-cover" />
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em]">Biography</label>
+                <textarea value={form.bio} onChange={e => setForm({ ...form, bio: e.target.value })} rows={4} className="w-full border border-[#E8E0D5] outline-none focus:border-terracotta px-3 py-2 resize-none" />
               </div>
 
               <div className="flex items-center gap-3">

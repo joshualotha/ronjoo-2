@@ -18,7 +18,16 @@ class UpdateTeamMemberRequest extends FormRequest
             'languages.*'       => 'string|max:50',
             'specializations'   => 'nullable|array',
             'specializations.*' => 'string|max:100',
-            'show_on_website'   => 'boolean',
+            'show_on_website'   => 'sometimes|boolean',
+            'photo'             => 'nullable|string',
+            'bio'               => 'nullable|string',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        if ($this->has('showOnWebsite')) {
+            $this->merge(['show_on_website' => $this->boolean('showOnWebsite')]);
+        }
     }
 }

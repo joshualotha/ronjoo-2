@@ -10,6 +10,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingElements from "@/components/FloatingElements";
 
+
 const resolveSafariImage = (url: string) => {
   if (!url) return "";
   if (url.startsWith("http")) return url;
@@ -75,8 +76,8 @@ const BookSafariPage = () => {
   const totalPrice = perPerson * travelers;
 
   const heroUrl = safari
-    ? resolveSafariImage(safari.heroImages?.[0] || safari.image || "")
-    : "";
+    ? resolveSafariImage(safari.heroImages?.[0] || safari.image || '/assets/hero-booksafaripage.jpg')
+    : '/assets/hero-booksafaripage.jpg';
 
   const canSubmit = form.name.trim() !== "" && form.email.trim() !== "";
 

@@ -3,7 +3,7 @@ import { useAdmin } from '../context/AdminContext';
 import {
   LayoutDashboard, Calendar, MessageSquare, Users, Clock,
   Compass, MapPin, BookOpen, Shield, HelpCircle, Image, Star,
-  Mail, Tag, Search, Lock, Settings, LogOut, DollarSign
+  Mail, Tag, Search, Lock, Settings, LogOut, DollarSign, PawPrint, Building2
 } from 'lucide-react';
 
 const navGroups = [
@@ -27,6 +27,8 @@ const navGroups = [
     items: [
       { title: 'Safaris', path: '/kijani-desk/safaris', icon: Compass },
       { title: 'Destinations', path: '/kijani-desk/destinations', icon: MapPin },
+      { title: 'Wildlife', path: '/kijani-desk/wildlife', icon: PawPrint },
+      { title: 'Accommodations', path: '/kijani-desk/accommodations', icon: Building2 },
       { title: 'Add-Ons', path: '/kijani-desk/add-ons', icon: Tag },
       { title: 'Blog & Guides', path: '/kijani-desk/blog', icon: BookOpen },
       { title: 'FAQs', path: '/kijani-desk/faqs', icon: HelpCircle },

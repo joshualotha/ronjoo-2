@@ -341,7 +341,7 @@ const WildlifeSection = ({ dest }: { dest: any }) => {
         >
           {dest.wildlife?.map((animal: any) => (
             <div
-              key={animal.name}
+              key={animal.id || animal.name}
               className="group flex-shrink-0 w-[320px] h-[420px] relative overflow-hidden cursor-pointer"
             >
               <img
@@ -357,7 +357,7 @@ const WildlifeSection = ({ dest }: { dest: any }) => {
                   {animal.likelihood}
                 </span>
                 <h3 className="heading-display text-warm-canvas text-[28px]">{animal.name}</h3>
-                <p className="font-sub font-light text-warm-canvas/60 text-[13px] mt-1">{animal.fact || animal.description}</p>
+                <p className="font-sub font-light text-warm-canvas/60 text-[13px] mt-1">{animal.custom_fact || animal.fact || animal.description}</p>
               </div>
             </div>
           ))}
