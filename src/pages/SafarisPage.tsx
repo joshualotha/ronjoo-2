@@ -111,6 +111,7 @@ const SafarisPage = () => {
                 const safariId = String((safari as any).id ?? (safari as any).slug ?? "");
                 const isCompared = compareList.includes(safariId);
                 const isTall = i === 0 || i === 3;
+                const imageUrl = safari.heroImages?.[0] || safari.image;
 
                 return (
                   <div
@@ -125,7 +126,7 @@ const SafarisPage = () => {
                     >
                       <div
                         className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-[1.07]"
-                        style={{ backgroundImage: `url(${safari.image})` }}
+                        style={{ backgroundImage: `url(${imageUrl})` }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-[#1A0F08]/80 via-[#1A0F08]/20 to-transparent" />
                       <div className="absolute bottom-0 left-0 right-0 h-1 bg-terracotta transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
