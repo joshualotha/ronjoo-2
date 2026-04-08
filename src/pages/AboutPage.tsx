@@ -37,7 +37,6 @@ const AboutPage = () => {
     desc: member.bio,
     photo: member.photo
   })) : [
-    { name: "Emmanuel Laizer", role: "Founder & Lead Guide", years: 18, desc: "Born in Arusha to a Maasai family, Emmanuel has been guiding safaris since 2008. He holds a degree in wildlife management and speaks five languages." },
     { name: "David Mollel", role: "Senior Safari Guide", years: 14, desc: "David's knowledge of big cat behavior is unmatched in the northern circuit. Guests consistently call him the best guide they've ever had." },
     { name: "Joseph Maasai", role: "Safari Guide & Cultural Expert", years: 10, desc: "Joseph bridges the gap between safari and culture, offering guests deep insights into Maasai traditions and local ecology." },
     { name: "Amina Mshanga", role: "Operations Director", years: 12, desc: "Amina ensures every safari runs flawlessly, from airport transfers to lodge bookings to emergency contingencies." },
@@ -54,7 +53,7 @@ const AboutPage = () => {
            animate={{ scale: 1.05 }}
            transition={{ duration: 15, ease: "linear", repeat: Infinity, repeatType: "mirror" }}
            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-           style={{ backgroundImage: `url(/assets/hero-gallery.jpg)` }}
+           style={{ backgroundImage: `url(/assets/hero-about.jpg)` }}
         />
         
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
@@ -104,7 +103,7 @@ const AboutPage = () => {
             >
               <div className="aspect-[4/5] relative overflow-hidden rounded-t-full rounded-b-[32px]">
                 <img 
-                  src="/assets/hero-destinationspage.jpg" 
+                  src="/assets/about.jpg" 
                   alt="Maasai heritage" 
                   className="w-full h-full object-cover scale-110 hover:scale-100 transition-transform duration-[2s]" 
                 />
@@ -112,7 +111,7 @@ const AboutPage = () => {
               {/* Decorative texture or badge */}
               <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-terracotta/90 rounded-full flex flex-col items-center justify-center text-warm-canvas p-4 text-center shadow-2xl">
                 <span className="font-display italic text-[24px] leading-none mb-1">100%</span>
-                <span className="font-sub uppercase tracking-[0.1em] text-[9px] leading-tight">Maasai Founded</span>
+                <span className="font-sub uppercase tracking-[0.1em] text-[9px] leading-tight">Maasai Owned</span>
               </div>
             </motion.div>
 
