@@ -26,9 +26,7 @@ class PublicDepartureResource extends JsonResource
             'totalSeats'     => $this->total_seats,
             'seatsTaken'     => $this->booked_seats,
             'availableSeats' => $this->available_seats,
-            'pricePerPerson' => $this->projected_revenue && $this->total_seats
-                ? (int) round($this->projected_revenue / $this->total_seats)
-                : 0,
+            'pricePerPerson' => $this->price_per_person ?? 0,
             'soldOut'        => $this->available_seats <= 0,
             'status'         => $this->status,
             'guide'          => $this->guide,

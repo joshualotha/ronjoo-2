@@ -10,7 +10,7 @@ class DepartureController extends Controller
 {
     public function index()
     {
-        $departures = Departure::with('safari:id,slug,name,destinations')
+        $departures = Departure::with('safari:id,slug,name,destinations,price_tiers,price')
             ->where('status', 'open')
             ->orderBy('start_date')
             ->get();

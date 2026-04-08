@@ -130,7 +130,7 @@ const AboutPage = () => {
                 </h2>
                 <div className="space-y-6 font-body font-normal text-[17px] leading-[1.8] text-warm-charcoal/70">
                   <p>
-                    Ronjoo Safaris was founded in 2010 by Emmanuel Laizer, a Maasai guide who grew up on the edge of the Serengeti. After a decade of guiding for international operators, he saw a gap: travelers wanted authenticity, intimacy, and local expertise, not factory-line tourism.
+                    Ronjoo Safaris was founded in 2010 by a collective of Maasai guides who grew up on the edge of the Serengeti. After decades of guiding for international operators, we saw a gap: travelers wanted authenticity, intimacy, and local expertise, not factory-line tourism.
                   </p>
                   <blockquote className="border-l-2 border-gold/40 pl-8 my-10 relative">
                     <div className="absolute -left-[5px] top-0 bottom-0 w-[10px] bg-gold/10" />
@@ -139,7 +139,7 @@ const AboutPage = () => {
                     </p>
                   </blockquote>
                   <p>
-                    Eighteen years later, that promise remains our anchor. We've hosted over 4,200 travelers from 50+ countries, but we've remained fiercely independent. Every guide on our team is handpicked by Emmanuel to ensure that same Maasai spirit of hospitality.
+                    Eighteen years later, that promise remains our anchor. We've hosted over 4,200 travelers from 50+ countries, but we've remained fiercely independent. Every guide on our team is handpicked from within our community to ensure that same Maasai spirit of hospitality.
                   </p>
                 </div>
               </motion.div>

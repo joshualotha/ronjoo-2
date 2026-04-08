@@ -69,13 +69,34 @@ class Departure extends Model
 
     public function getPricePerPersonAttribute(): int
     {
+        // First, try to calculate based on safari price tiers
+        if ($this->safari && method_exists($this->safari, 'calculateTieredPrice')) {
+            // Determine group size for pricing
+            // For departures, we should use the total seats (capacity) for pricing calculation
+            // since price is fixed per departure regardless of how many are booked
+            $groupSize = min($this->total_seats, 6); // Price tiers typically go up to 6
+            
+            $price = $this->safari->calculateTieredPrice($groupSize);
+            if ($price > 0) {
+                return $price;
+            }
+        }
+        
+        // Fallback to safari base price
         if ($this->safari) {
             return $this->safari->price ?? 0;
         }
-        // Fallback: calculate from revenue if safari not loaded
+        
+        // Fallback: calculate from projected revenue if available
+        if ($this->total_seats > 0 && $this->projected_revenue > 0) {
+            return (int) round($this->projected_revenue / $this->total_seats);
+        }
+        
+        // Fallback: calculate from actual revenue if available
         if ($this->booked_seats > 0 && $this->revenue > 0) {
             return (int) round($this->revenue / $this->booked_seats);
         }
+        
         return 0;
     }
 

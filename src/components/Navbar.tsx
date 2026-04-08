@@ -16,7 +16,7 @@ const useGTranslate = () => {
 
     (window as any).gtranslateSettings = {
       default_language: "en",
-      languages: ["en", "fr", "it", "es", "de", "zh-CN"],
+      languages: ["en", "fr", "it", "es", "de", "zh-CN", "ko"],
       wrapper_selector: ".gtranslate_wrapper",
     };
 
