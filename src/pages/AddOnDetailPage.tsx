@@ -19,7 +19,6 @@ const AddOnDetailPage = () => {
     queryFn: getAddOns,
   });
   const [heroIdx, setHeroIdx] = useState(0);
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [isSticky, setIsSticky] = useState(false);
   const infoBarRef = useRef<HTMLDivElement>(null);
 
@@ -188,7 +187,7 @@ const AddOnDetailPage = () => {
             className="absolute bottom-6 right-6 font-sub font-light text-[11px] hidden lg:block"
             style={{ color: "rgba(245,239,224,0.45)" }}
           >
-            Available: {addon.bestSeason}
+            {addon.bestSeason}
           </motion.p>
         </div>
       </section>
@@ -302,17 +301,7 @@ const AddOnDetailPage = () => {
               />
             </motion.div>
 
-            {/* Details card */}
-            <div className="bg-deep-earth p-7">
-              {addon.practicalInfo.slice(0, 6).map((info, i) => (
-                <div key={i} className={`py-3 ${i > 0 ? "border-t" : ""}`} style={{ borderColor: "rgba(184,146,42,0.15)" }}>
-                  <p className="font-sub font-light text-[10px] uppercase tracking-[0.2em]" style={{ color: "#B8922A" }}>{info.label}</p>
-                  <p className="font-sub font-normal text-[13px] mt-0.5" style={{ color: "#1A0F08" }}>{info.value}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Pull quote */}
+            {/* Pull quote - moved up to replace details card space */}
             <motion.blockquote
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
@@ -321,136 +310,6 @@ const AddOnDetailPage = () => {
             >
               "{addon.pullQuote}"
             </motion.blockquote>
-          </div>
-        </div>
-      </section>
-
-      {/* TIMELINE */}
-      {addon.timeline && addon.timeline.length > 0 && (
-        <section className="bg-deep-earth py-20 px-6 lg:px-20">
-          <div className="max-w-[900px] mx-auto">
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="font-display italic text-[36px] md:text-[52px] text-center mb-16"
-              style={{ color: "#F5EFE0" }}
-            >
-              What to Expect
-            </motion.h2>
-
-            <div className="relative">
-              {/* Vertical line */}
-              <div className="absolute left-[120px] md:left-[140px] top-0 bottom-0 w-px hidden md:block" style={{ background: "rgba(196,96,58,0.3)" }} />
-
-              {addon.timeline.map((step, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.12, duration: 0.5 }}
-                  className="flex gap-6 md:gap-10 mb-10 last:mb-0"
-                >
-                  <div className="w-[100px] md:w-[120px] flex-shrink-0 text-right">
-                    <span className="font-display italic text-[20px] md:text-[24px]" style={{ color: "#B8922A" }}>
-                      {step.time}
-                    </span>
-                  </div>
-                  <div className="relative pl-6 md:pl-10">
-                    {/* Dot on timeline */}
-                    <div
-                      className="absolute left-[-5px] md:left-0 top-2 w-2.5 h-2.5 hidden md:block"
-                      style={{ background: "#C4603A", borderRadius: "0" }}
-                    />
-                    <h3 className="font-display italic text-[22px] md:text-[26px] mb-2" style={{ color: "#1A0F08" }}>
-                      {step.title}
-                    </h3>
-                    <p className="font-sub font-light text-[14px] max-w-[500px]" style={{ color: "rgba(0,0,0,0.33)" }}>
-                      {step.description}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* PRACTICAL INFO, FAQ + Quick Reference */}
-      <section className="bg-warm-canvas py-20 px-6 lg:px-20">
-        <div className="max-w-[1400px] mx-auto">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="font-display italic text-[36px] md:text-[48px] text-warm-charcoal mb-12"
-          >
-            Good to Know
-          </motion.h2>
-
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
-            {/* FAQ accordion */}
-            <div className="lg:col-span-3">
-              {addon.faqs.map((faq, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.05 }}
-                  className={`border-b ${i === 0 ? "border-t" : ""}`}
-                  style={{ borderColor: "#D9CDBF" }}
-                >
-                  <button
-                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                    className="w-full flex items-center justify-between py-5 text-left group"
-                  >
-                    <span className="font-display italic text-[20px] text-warm-charcoal group-hover:text-terracotta transition-colors pr-4">
-                      {faq.question}
-                    </span>
-                    <motion.span
-                      animate={{ rotate: openFaq === i ? 45 : 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="flex-shrink-0 text-[18px] font-light"
-                      style={{ color: openFaq === i ? "#C4603A" : "#B8922A" }}
-                    >
-                      +
-                    </motion.span>
-                  </button>
-                  <AnimatePresence>
-                    {openFaq === i && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                        className="overflow-hidden"
-                      >
-                        <p className="font-body font-light text-[15px] text-warm-charcoal leading-[1.85] pb-5 pl-0 max-w-[720px]">
-                          {faq.answer}
-                        </p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Quick reference card */}
-            <div className="lg:col-span-2">
-              <div className="bg-deep-earth p-7 sticky top-24">
-                <h3 className="font-sub font-light text-[11px] uppercase tracking-[0.25em] mb-6" style={{ color: "#B8922A" }}>
-                  Quick Reference
-                </h3>
-                {addon.practicalInfo.map((info, i) => (
-                  <div key={i} className={`py-3 ${i > 0 ? "border-t" : ""}`} style={{ borderColor: "rgba(184,146,42,0.15)" }}>
-                    <p className="font-sub font-light text-[10px] uppercase tracking-[0.2em]" style={{ color: "#B8922A" }}>{info.label}</p>
-                    <p className="font-sub font-normal text-[14px] mt-0.5" style={{ color: "#1A0F08" }}>{info.value}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -483,10 +342,6 @@ const AddOnDetailPage = () => {
               Ask Our Team
             </Link>
           </div>
-
-          <p className="font-sub font-light text-[13px] mt-8 max-w-[420px] mx-auto" style={{ color: "rgba(0,0,0,0.25)" }}>
-            Most guests add this experience when booking their safari. Can also be added up to 7 days before departure.
-          </p>
         </div>
       </section>
 

@@ -1,6 +1,5 @@
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import CharacterCount from '@tiptap/extension-character-count';
@@ -66,7 +65,6 @@ export default function ModernRichTextEditor({
       StarterKit.configure({
         heading: { levels: [2, 3] },
       }),
-      Underline,
       Link.configure({
         openOnClick: false,
         HTMLAttributes: { class: 'text-terracotta underline cursor-pointer' },

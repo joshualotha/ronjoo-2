@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { Plus, Search, Eye, Pencil, Trash2, Upload } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Plus, Search, Eye, Pencil, Trash2, Upload, X } from 'lucide-react';
 import AdminTopBar from '../components/AdminTopBar';
 import ModernRichTextEditor from '../components/ModernRichTextEditor';
 import { useAdminCrud } from '../hooks/useAdminCrud';
-import { blogPostsApi } from '../../services/adminApi';
+import { blogPostsApi, uploadImages } from '../../services/adminApi';
 
 const statusColors: Record<string, string> = {
   published: 'bg-sage text-warm-canvas',
@@ -27,12 +27,14 @@ interface PostForm {
   relatedSafari: string;
   relatedDestination: string;
   showCta: boolean;
+  featuredImage: string;
 }
 
 const emptyForm: PostForm = {
   title: '', slug: '', category: 'Safari Planning', author: 'Safari Team', status: 'draft',
   content: '', excerpt: '', tags: '', metaTitle: '', metaDescription: '',
-  relatedSafari: '', relatedDestination: '', showCta: true
+  relatedSafari: '', relatedDestination: '', showCta: true,
+  featuredImage: ''
 };
 
 export default function AdminBlog() {
@@ -43,6 +45,8 @@ export default function AdminBlog() {
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState<PostForm>({ ...emptyForm });
   const [isHydrating, setIsHydrating] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filtered = posts.filter(p => {
     const matchSearch = !search || p.title.toLowerCase().includes(search.toLowerCase());
@@ -57,6 +61,8 @@ export default function AdminBlog() {
       setIsHydrating(true);
       try {
         const full = await blogPostsApi.show(post.id);
+        const tagsValue = (full as any).tags;
+        const tagsString = Array.isArray(tagsValue) ? tagsValue.join(', ') : (tagsValue ?? '');
         setForm({
           ...emptyForm,
           title: (full as any).title ?? '',
@@ -66,12 +72,13 @@ export default function AdminBlog() {
           status: ((full as any).status ?? 'draft') as any,
           content: (full as any).content ?? '',
           excerpt: (full as any).excerpt ?? '',
-          tags: (full as any).tags ?? '',
+          tags: tagsString,
           metaTitle: (full as any).metaTitle ?? '',
           metaDescription: (full as any).metaDescription ?? '',
           relatedSafari: (full as any).relatedSafari ?? '',
           relatedDestination: (full as any).relatedDestination ?? '',
           showCta: !!(full as any).showCta,
+          featuredImage: (full as any).featured_image ?? '',
         });
         setEditing(String((full as any).id ?? post.id));
       } finally {
@@ -95,6 +102,10 @@ export default function AdminBlog() {
 
   const handleSave = async () => {
     try {
+      // Ensure tags is a comma-separated string, not an array
+      const tagsValue = form.tags;
+      const tagsString = Array.isArray(tagsValue) ? tagsValue.join(', ') : (typeof tagsValue === 'string' ? tagsValue : '');
+      
       const payload: any = {
         title: form.title,
         slug: slugify(form.slug || form.title),
@@ -103,12 +114,13 @@ export default function AdminBlog() {
         status: form.status,
         content: form.content,
         excerpt: form.excerpt,
-        tags: form.tags,
+        tags: tagsString,
         metaTitle: form.metaTitle,
         metaDescription: form.metaDescription,
         relatedSafari: form.relatedSafari,
         relatedDestination: form.relatedDestination,
         showCta: form.showCta,
+        featured_image: form.featuredImage,
       };
 
       if (form.status === 'published') {
@@ -181,10 +193,62 @@ export default function AdminBlog() {
                 </div>
                 <div>
                   <label className="font-sub text-[10px] text-warm-charcoal uppercase tracking-[0.15em] mb-1 block">Featured Image</label>
-                  <div className="border-2 border-dashed border-[#E8E0D5] p-6 text-center hover:border-terracotta transition-colors cursor-pointer">
-                    <Upload size={18} className="mx-auto text-warm-charcoal mb-1" />
-                    <p className="font-sub font-normal text-[11px] text-warm-charcoal">Upload image</p>
-                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const files = Array.from(e.target.files || []);
+                      if (files.length === 0) return;
+                      setIsUploading(true);
+                      try {
+                        const urls = await uploadImages(files, 'blog');
+                        if (urls.length > 0) {
+                          updateForm('featuredImage', urls[0]);
+                        }
+                      } catch (err) {
+                        alert('Upload failed: ' + (err as Error).message);
+                      } finally {
+                        setIsUploading(false);
+                        if (fileInputRef.current) fileInputRef.current.value = '';
+                      }
+                    }}
+                  />
+                  {form.featuredImage ? (
+                    <div className="relative group">
+                      <img src={form.featuredImage} alt="Featured" className="w-full h-48 object-cover border border-[#E8E0D5]" />
+                      <button
+                        type="button"
+                        onClick={() => updateForm('featuredImage', '')}
+                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div
+                      onClick={() => fileInputRef.current?.click()}
+                      className="border-2 border-dashed border-[#E8E0D5] p-6 text-center hover:border-terracotta transition-colors cursor-pointer"
+                    >
+                      {isUploading ? (
+                        <div className="flex flex-col items-center">
+                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-terracotta mb-1"></div>
+                          <p className="font-sub font-normal text-[11px] text-warm-charcoal">Uploading...</p>
+                        </div>
+                      ) : (
+                        <>
+                          <Upload size={18} className="mx-auto text-warm-charcoal mb-1" />
+                          <p className="font-sub font-normal text-[11px] text-warm-charcoal">Upload image</p>
+                        </>
+                      )}
+                    </div>
+                  )}
+                  {form.featuredImage && (
+                    <p className="font-sub font-normal text-[10px] text-warm-charcoal mt-1 truncate">
+                      {form.featuredImage.split('/').pop()}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="font-sub text-[10px] text-warm-charcoal uppercase tracking-[0.15em] mb-1 block">Status</label>

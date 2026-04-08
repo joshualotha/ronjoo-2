@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { Plus, Pencil, Trash2, X, Check, DollarSign, Clock, MapPin } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Plus, Pencil, Trash2, X, Check, DollarSign, Clock, MapPin, Upload } from 'lucide-react';
 import AdminTopBar from '../components/AdminTopBar';
 import { useAdminCrud } from '../hooks/useAdminCrud';
-import { addOnsApi } from '../../services/adminApi';
+import { addOnsApi, uploadImages } from '../../services/adminApi';
 
 export default function AdminAddOns() {
   const { items: addOns, isLoading, create, update, remove } = useAdminCrud('add-ons', addOnsApi);
@@ -10,6 +10,8 @@ export default function AdminAddOns() {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState<any>({});
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const openCreate = () => {
     setFormData({
@@ -17,7 +19,7 @@ export default function AdminAddOns() {
       price_suffix: 'per person', duration: '', location: '', best_season: '',
       group_size: '', start_time: '', tagline: '', hero_images: [''],
       overview_prose: [''], pull_quote: '', included: [''], not_included: [''],
-      related_slugs: [],
+      timeline: [], faqs: [], practical_info: [], related_slugs: [],
     });
     setEditing(null);
     setShowForm(true);
@@ -42,6 +44,9 @@ export default function AdminAddOns() {
       pull_quote: addon.pullQuote || '',
       included: addon.included?.length ? addon.included : [''],
       not_included: addon.notIncluded?.length ? addon.notIncluded : [''],
+      timeline: addon.timeline || [],
+      faqs: addon.faqs || [],
+      practical_info: addon.practicalInfo || [],
       related_slugs: addon.relatedSlugs || [],
     });
     setEditing(addon.id);
@@ -55,6 +60,10 @@ export default function AdminAddOns() {
       overview_prose: formData.overview_prose.filter((v: string) => v),
       included: formData.included.filter((v: string) => v),
       not_included: formData.not_included.filter((v: string) => v),
+      timeline: formData.timeline || [],
+      faqs: formData.faqs || [],
+      practical_info: formData.practical_info || [],
+      related_slugs: formData.related_slugs || [],
     };
     if (editing) {
       await update(editing, payload);
@@ -155,7 +164,7 @@ export default function AdminAddOns() {
                   </div>
                 </div>
 
-                {/* Duration, Location, Group Size */}
+                {/* Duration, Location, Group Size, Best Season, Start Time */}
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <label className="block font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em] mb-1.5">Duration</label>
@@ -171,22 +180,96 @@ export default function AdminAddOns() {
                   </div>
                 </div>
 
+                {/* Best Season, Start Time, Price Suffix */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="block font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em] mb-1.5">Best Season</label>
+                    <input value={formData.best_season} onChange={e => setFormData({ ...formData, best_season: e.target.value })} placeholder="Year-round" className="w-full border border-[#E8E0D5] bg-[#FEFCF9] px-3 py-2 font-sub font-normal text-[13px] text-warm-charcoal focus:outline-none focus:border-terracotta" />
+                  </div>
+                  <div>
+                    <label className="block font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em] mb-1.5">Start Time</label>
+                    <input value={formData.start_time} onChange={e => setFormData({ ...formData, start_time: e.target.value })} placeholder="5:30 AM" className="w-full border border-[#E8E0D5] bg-[#FEFCF9] px-3 py-2 font-sub font-normal text-[13px] text-warm-charcoal focus:outline-none focus:border-terracotta" />
+                  </div>
+                  <div>
+                    <label className="block font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em] mb-1.5">Price Suffix</label>
+                    <input value={formData.price_suffix} onChange={e => setFormData({ ...formData, price_suffix: e.target.value })} placeholder="per person" className="w-full border border-[#E8E0D5] bg-[#FEFCF9] px-3 py-2 font-sub font-normal text-[13px] text-warm-charcoal focus:outline-none focus:border-terracotta" />
+                  </div>
+                </div>
+
                 {/* Tagline */}
                 <div>
                   <label className="block font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em] mb-1.5">Tagline</label>
                   <textarea value={formData.tagline} onChange={e => setFormData({ ...formData, tagline: e.target.value })} rows={2} className="w-full border border-[#E8E0D5] bg-[#FEFCF9] px-3 py-2 font-sub font-normal text-[13px] text-warm-charcoal focus:outline-none focus:border-terracotta resize-none" />
                 </div>
 
+                {/* Pull Quote */}
+                <div>
+                  <label className="block font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em] mb-1.5">Pull Quote</label>
+                  <textarea value={formData.pull_quote} onChange={e => setFormData({ ...formData, pull_quote: e.target.value })} rows={2} className="w-full border border-[#E8E0D5] bg-[#FEFCF9] px-3 py-2 font-sub font-normal text-[13px] text-warm-charcoal focus:outline-none focus:border-terracotta resize-none" />
+                </div>
+
                 {/* Hero Images */}
                 <div>
-                  <label className="block font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em] mb-1.5">Hero Images (URLs)</label>
+                  <label className="block font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em] mb-1.5">Hero Images</label>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const files = Array.from(e.target.files || []);
+                      if (files.length === 0) return;
+                      setIsUploading(true);
+                      try {
+                        const urls = await uploadImages(files, 'add-ons');
+                        setFormData({ ...formData, hero_images: [...(formData.hero_images || []), ...urls] });
+                      } catch (err) {
+                        alert('Upload failed: ' + (err as Error).message);
+                      } finally {
+                        setIsUploading(false);
+                        if (fileInputRef.current) fileInputRef.current.value = '';
+                      }
+                    }}
+                  />
                   {(formData.hero_images || []).map((url: string, i: number) => (
                     <div key={i} className="flex gap-2 mb-2">
-                      <input value={url} onChange={e => updateArrayField('hero_images', i, e.target.value)} placeholder="https://..." className="flex-1 border border-[#E8E0D5] bg-[#FEFCF9] px-3 py-1.5 font-sub font-normal text-[12px] text-warm-charcoal focus:outline-none focus:border-terracotta" />
+                      {url.startsWith('http') ? (
+                        <div className="flex-1 relative group">
+                          <img src={url} alt={`Hero ${i + 1}`} className="w-full h-20 object-cover border border-[#E8E0D5] rounded" />
+                          <button
+                            type="button"
+                            onClick={() => removeArrayItem('hero_images', i)}
+                            className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X size={10} />
+                          </button>
+                        </div>
+                      ) : (
+                        <input value={url} onChange={e => updateArrayField('hero_images', i, e.target.value)} placeholder="https://..." className="flex-1 border border-[#E8E0D5] bg-[#FEFCF9] px-3 py-1.5 font-sub font-normal text-[12px] text-warm-charcoal focus:outline-none focus:border-terracotta" />
+                      )}
                       <button onClick={() => removeArrayItem('hero_images', i)} className="text-warm-charcoal hover:text-terracotta"><X size={12} /></button>
                     </div>
                   ))}
-                  <button onClick={() => addArrayItem('hero_images')} className="font-sub font-normal text-[11px] text-terracotta hover:underline">+ Add Image</button>
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-terracotta text-warm-canvas font-sub font-normal text-[11px] uppercase tracking-[0.1em] hover:opacity-90 disabled:opacity-50"
+                    >
+                      {isUploading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-3 w-3 border-b border-warm-canvas"></div>
+                          Uploading...
+                        </>
+                      ) : (
+                        <>
+                          <Upload size={12} />
+                          Upload Image
+                        </>
+                      )}
+                    </button>
+                    <button onClick={() => addArrayItem('hero_images')} className="font-sub font-normal text-[11px] text-terracotta hover:underline">+ Add URL</button>
+                  </div>
                 </div>
 
                 {/* Overview Prose */}
@@ -223,6 +306,25 @@ export default function AdminAddOns() {
                     ))}
                     <button onClick={() => addArrayItem('not_included')} className="font-sub font-normal text-[11px] text-terracotta hover:underline">+ Add</button>
                   </div>
+                </div>
+
+                {/* Related Slugs */}
+                <div>
+                  <label className="block font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em] mb-1.5">Related Add-On Slugs</label>
+                  <p className="font-sub font-normal text-[11px] text-warm-charcoal/60 mb-2">Enter slugs of related add-ons (comma separated or one per line)</p>
+                  <textarea
+                    value={Array.isArray(formData.related_slugs) ? formData.related_slugs.join(', ') : formData.related_slugs || ''}
+                    onChange={e => {
+                      const value = e.target.value;
+                      const slugs = value.split(/[,\n]/)
+                        .map(s => s.trim())
+                        .filter(s => s.length > 0);
+                      setFormData({ ...formData, related_slugs: slugs });
+                    }}
+                    rows={3}
+                    placeholder="hot-air-balloon, private-bush-dinner, photography-upgrade"
+                    className="w-full border border-[#E8E0D5] bg-[#FEFCF9] px-3 py-2 font-sub font-normal text-[13px] text-warm-charcoal focus:outline-none focus:border-terracotta resize-none"
+                  />
                 </div>
 
                 {/* Actions */}

@@ -8,6 +8,7 @@ import GroupDepartures from "@/components/home/GroupDepartures";
 import MapSection from "@/components/home/MapSection";
 import Testimonials from "@/components/home/Testimonials";
 import InstagramGallery from "@/components/home/InstagramGallery";
+import NewsletterSection from "@/components/NewsletterSection";
 
 const Index = () => {
   return (
@@ -21,6 +22,7 @@ const Index = () => {
         <MapSection />
         <Testimonials />
         <InstagramGallery />
+        <NewsletterSection />
       </main>
       <Footer />
       <FloatingElements />

@@ -9,6 +9,12 @@ class BlogPostResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        // Convert comma-separated tags string to array
+        $tags = $this->tags;
+        $tagsArray = is_string($tags) && !empty($tags)
+            ? array_map('trim', explode(',', $tags))
+            : (is_array($tags) ? $tags : []);
+
         return [
             'id'                 => $this->id,
             'slug'               => $this->slug,
@@ -22,7 +28,7 @@ class BlogPostResource extends JsonResource
             'content'            => $this->body ?? $this->content,
             'featuredImage'      => $this->featured_image,
             'excerpt'            => $this->excerpt,
-            'tags'               => $this->tags,
+            'tags'               => $tagsArray,
             'metaTitle'          => $this->meta_title,
             'metaDescription'    => $this->meta_description,
             'relatedSafari'      => $this->related_safari,

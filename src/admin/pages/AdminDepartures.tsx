@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
-import { Plus, Users, Trash2, Pencil, X } from 'lucide-react';
+import { Plus, Users, Trash2, Pencil, X, UserPlus, UserMinus } from 'lucide-react';
 import AdminTopBar from '../components/AdminTopBar';
 import { useAdminCrud } from '../hooks/useAdminCrud';
-import { departuresApi } from '../../services/adminApi';
+import { departuresApi, safarisApi } from '../../services/adminApi';
 
 const statusColors: Record<string, string> = {
   open: 'bg-sage text-warm-canvas',
@@ -15,6 +15,7 @@ const statusColors: Record<string, string> = {
 export default function AdminDepartures() {
   const [filter, setFilter] = useState<'upcoming' | 'past' | 'all'>('upcoming');
   const { items: departures, isLoading, create, update, remove, refetch } = useAdminCrud('departures', departuresApi);
+  const { items: safaris } = useAdminCrud('safaris', safarisApi);
 
   const filtered = departures.filter((d: any) => {
     if (filter === 'upcoming') return d.status !== 'completed';
@@ -25,6 +26,7 @@ export default function AdminDepartures() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | number | null>(null);
   const [form, setForm] = useState<any>({
+    safariId: '',
     safariName: '',
     startDate: '',
     endDate: '',
@@ -34,13 +36,14 @@ export default function AdminDepartures() {
     revenue: 0,
     projectedRevenue: 0,
     guide: '',
-    guestsJson: '[]',
-    waitlistJson: '[]',
+    guests: [],
+    waitlist: [],
   });
 
   const openCreate = () => {
     setEditingId(null);
     setForm({
+      safariId: '',
       safariName: '',
       startDate: '',
       endDate: '',
@@ -50,8 +53,8 @@ export default function AdminDepartures() {
       revenue: 0,
       projectedRevenue: 0,
       guide: '',
-      guestsJson: '[]',
-      waitlistJson: '[]',
+      guests: [],
+      waitlist: [],
     });
     setShowForm(true);
   };
@@ -59,6 +62,7 @@ export default function AdminDepartures() {
   const openEdit = (dep: any) => {
     setEditingId(dep.id);
     setForm({
+      safariId: dep.safariId ?? '',
       safariName: dep.safariName ?? '',
       startDate: dep.startDate ?? '',
       endDate: dep.endDate ?? '',
@@ -68,8 +72,8 @@ export default function AdminDepartures() {
       revenue: Number(dep.revenue ?? 0),
       projectedRevenue: Number(dep.projectedRevenue ?? 0),
       guide: dep.guide ?? '',
-      guestsJson: JSON.stringify(dep.guests ?? [], null, 2),
-      waitlistJson: JSON.stringify(dep.waitlist ?? [], null, 2),
+      guests: dep.guests ?? [],
+      waitlist: dep.waitlist ?? [],
     });
     setShowForm(true);
   };
@@ -81,43 +85,65 @@ export default function AdminDepartures() {
   };
 
   const buildPayload = useMemo(() => {
-    const guestsParsed = (() => {
-      try {
-        if (!form.guestsJson?.trim()) return [];
-        const parsed = JSON.parse(form.guestsJson);
-        return Array.isArray(parsed) ? parsed : [];
-      } catch {
-        return null;
-      }
-    })();
-    const waitlistParsed = (() => {
-      try {
-        if (!form.waitlistJson?.trim()) return [];
-        const parsed = JSON.parse(form.waitlistJson);
-        return Array.isArray(parsed) ? parsed : [];
-      } catch {
-        return null;
-      }
-    })();
-
     return {
-      guestsParsed,
-      waitlistParsed,
-      payload: {
-        safariName: form.safariName || null,
-        startDate: form.startDate || null,
-        endDate: form.endDate || null,
-        totalSeats: Number(form.totalSeats ?? 1),
-        bookedSeats: Number(form.bookedSeats ?? 0),
-        status: form.status,
-        revenue: Number(form.revenue ?? 0),
-        projectedRevenue: Number(form.projectedRevenue ?? 0),
-        guide: form.guide || null,
-        guests: guestsParsed ?? [],
-        waitlist: waitlistParsed ?? [],
-      },
+      safari_id: form.safariId || null,
+      safari_name: form.safariName || null,
+      start_date: form.startDate || null,
+      end_date: form.endDate || null,
+      total_seats: Number(form.totalSeats ?? 1),
+      booked_seats: Number(form.bookedSeats ?? 0),
+      status: form.status,
+      revenue: Number(form.revenue ?? 0),
+      projected_revenue: Number(form.projectedRevenue ?? 0),
+      guide: form.guide || null,
+      guests: form.guests ?? [],
+      waitlist: form.waitlist ?? [],
     };
   }, [form]);
+  const handleSafariChange = (safariId: string) => {
+    const selectedSafari = safaris.find(s => String(s.id) === safariId);
+    setForm({
+      ...form,
+      safariId: safariId,
+      safariName: selectedSafari ? selectedSafari.name : '',
+    });
+  };
+
+  const addGuest = () => {
+    setForm({
+      ...form,
+      guests: [...form.guests, { name: '', country: '' }]
+    });
+  };
+
+  const updateGuest = (index: number, field: string, value: string) => {
+    const updatedGuests = [...form.guests];
+    updatedGuests[index] = { ...updatedGuests[index], [field]: value };
+    setForm({ ...form, guests: updatedGuests });
+  };
+
+  const removeGuest = (index: number) => {
+    const updatedGuests = form.guests.filter((_: any, i: number) => i !== index);
+    setForm({ ...form, guests: updatedGuests });
+  };
+
+  const addWaitlist = () => {
+    setForm({
+      ...form,
+      waitlist: [...form.waitlist, { name: '', email: '', whatsapp: '' }]
+    });
+  };
+
+  const updateWaitlist = (index: number, field: string, value: string) => {
+    const updatedWaitlist = [...form.waitlist];
+    updatedWaitlist[index] = { ...updatedWaitlist[index], [field]: value };
+    setForm({ ...form, waitlist: updatedWaitlist });
+  };
+
+  const removeWaitlist = (index: number) => {
+    const updatedWaitlist = form.waitlist.filter((_: any, i: number) => i !== index);
+    setForm({ ...form, waitlist: updatedWaitlist });
+  };
 
   return (
     <div>
@@ -237,8 +263,19 @@ export default function AdminDepartures() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em]">Safari Name *</label>
-                <input value={form.safariName} onChange={e => setForm({ ...form, safariName: e.target.value })} className="w-full h-[40px] px-3 border border-[#E8E0D5] outline-none focus:border-terracotta" />
+                <label className="font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em]">Safari *</label>
+                <select 
+                  value={form.safariId} 
+                  onChange={e => handleSafariChange(e.target.value)} 
+                  className="w-full h-[40px] px-3 border border-[#E8E0D5] outline-none focus:border-terracotta"
+                >
+                  <option value="">Select a safari...</option>
+                  {safaris.map((safari: any) => (
+                    <option key={safari.id} value={safari.id}>
+                      {safari.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="space-y-1">
@@ -253,61 +290,111 @@ export default function AdminDepartures() {
               </div>
 
               <div className="space-y-1">
-                <label className="font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em]">Start Date *</label>
+                <label className="font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em] mb-1.5">Start Date *</label>
                 <input type="date" value={form.startDate} onChange={e => setForm({ ...form, startDate: e.target.value })} className="w-full h-[40px] px-3 border border-[#E8E0D5] outline-none focus:border-terracotta" />
               </div>
 
               <div className="space-y-1">
-                <label className="font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em]">End Date *</label>
+                <label className="font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em] mb-1.5">End Date *</label>
                 <input type="date" value={form.endDate} onChange={e => setForm({ ...form, endDate: e.target.value })} className="w-full h-[40px] px-3 border border-[#E8E0D5] outline-none focus:border-terracotta" />
               </div>
 
               <div className="space-y-1">
-                <label className="font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em]">Total Seats *</label>
+                <label className="font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em] mb-1.5">Total Seats *</label>
                 <input type="number" min={1} value={form.totalSeats} onChange={e => setForm({ ...form, totalSeats: Number(e.target.value) })} className="w-full h-[40px] px-3 border border-[#E8E0D5] outline-none focus:border-terracotta" />
               </div>
 
               <div className="space-y-1">
-                <label className="font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em]">Booked Seats *</label>
+                <label className="font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em] mb-1.5">Booked Seats *</label>
                 <input type="number" min={0} value={form.bookedSeats} onChange={e => setForm({ ...form, bookedSeats: Number(e.target.value) })} className="w-full h-[40px] px-3 border border-[#E8E0D5] outline-none focus:border-terracotta" />
               </div>
 
               <div className="space-y-1">
-                <label className="font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em]">Revenue</label>
+                <label className="font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em] mb-1.5">Revenue</label>
                 <input type="number" min={0} value={form.revenue} onChange={e => setForm({ ...form, revenue: Number(e.target.value) })} className="w-full h-[40px] px-3 border border-[#E8E0D5] outline-none focus:border-terracotta" />
               </div>
 
               <div className="space-y-1">
-                <label className="font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em]">Projected Revenue</label>
+                <label className="font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em] mb-1.5">Projected Revenue</label>
                 <input type="number" min={0} value={form.projectedRevenue} onChange={e => setForm({ ...form, projectedRevenue: Number(e.target.value) })} className="w-full h-[40px] px-3 border border-[#E8E0D5] outline-none focus:border-terracotta" />
               </div>
 
               <div className="space-y-1">
-                <label className="font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em]">Guide</label>
+                <label className="font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em] mb-1.5">Guide</label>
                 <input value={form.guide} onChange={e => setForm({ ...form, guide: e.target.value })} className="w-full h-[40px] px-3 border border-[#E8E0D5] outline-none focus:border-terracotta" />
               </div>
             </div>
 
-            <div className="mt-4 grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em]">Guests JSON</label>
-                <textarea
-                  value={form.guestsJson}
-                  onChange={e => setForm({ ...form, guestsJson: e.target.value })}
-                  rows={6}
-                  className="w-full border border-[#E8E0D5] outline-none focus:border-terracotta px-3 py-2 resize-none"
-                  placeholder='[{"name":"...","country":"..."}]'
-                />
+            <div className="mt-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-sub font-normal text-[14px] text-warm-charcoal">Guests ({form.guests.length})</h3>
+                <button onClick={addGuest} className="flex items-center gap-2 px-3 py-1.5 bg-terracotta text-warm-canvas font-sub font-normal text-[11px] uppercase tracking-[0.1em] hover:opacity-90">
+                  <UserPlus size={12} /> Add Guest
+                </button>
               </div>
-              <div className="space-y-1">
-                <label className="font-sub font-normal text-[11px] text-warm-charcoal uppercase tracking-[0.15em]">Waitlist JSON</label>
-                <textarea
-                  value={form.waitlistJson}
-                  onChange={e => setForm({ ...form, waitlistJson: e.target.value })}
-                  rows={6}
-                  className="w-full border border-[#E8E0D5] outline-none focus:border-terracotta px-3 py-2 resize-none"
-                  placeholder='[{"name":"...","email":"...","whatsapp":"..."}]'
-                />
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {form.guests.map((guest: any, index: number) => (
+                  <div key={index} className="flex gap-2 items-center p-2 border border-[#E8E0D5] bg-[#FEFCF9]">
+                    <input
+                      placeholder="Name"
+                      value={guest.name}
+                      onChange={e => updateGuest(index, 'name', e.target.value)}
+                      className="flex-1 h-[32px] px-2 border border-[#E8E0D5] outline-none focus:border-terracotta text-[12px]"
+                    />
+                    <input
+                      placeholder="Country"
+                      value={guest.country}
+                      onChange={e => updateGuest(index, 'country', e.target.value)}
+                      className="flex-1 h-[32px] px-2 border border-[#E8E0D5] outline-none focus:border-terracotta text-[12px]"
+                    />
+                    <button onClick={() => removeGuest(index)} className="p-1 text-red-500 hover:text-red-700">
+                      <UserMinus size={14} />
+                    </button>
+                  </div>
+                ))}
+                {form.guests.length === 0 && (
+                  <p className="text-[12px] text-warm-charcoal/60 italic">No guests added yet</p>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-sub font-normal text-[14px] text-warm-charcoal">Waitlist ({form.waitlist.length})</h3>
+                <button onClick={addWaitlist} className="flex items-center gap-2 px-3 py-1.5 bg-gold text-warm-canvas font-sub font-normal text-[11px] uppercase tracking-[0.1em] hover:opacity-90">
+                  <UserPlus size={12} /> Add to Waitlist
+                </button>
+              </div>
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {form.waitlist.map((person: any, index: number) => (
+                  <div key={index} className="flex gap-2 items-center p-2 border border-[#E8E0D5] bg-[#FEFCF9]">
+                    <input
+                      placeholder="Name"
+                      value={person.name}
+                      onChange={e => updateWaitlist(index, 'name', e.target.value)}
+                      className="flex-1 h-[32px] px-2 border border-[#E8E0D5] outline-none focus:border-terracotta text-[12px]"
+                    />
+                    <input
+                      placeholder="Email"
+                      type="email"
+                      value={person.email}
+                      onChange={e => updateWaitlist(index, 'email', e.target.value)}
+                      className="flex-1 h-[32px] px-2 border border-[#E8E0D5] outline-none focus:border-terracotta text-[12px]"
+                    />
+                    <input
+                      placeholder="WhatsApp"
+                      value={person.whatsapp}
+                      onChange={e => updateWaitlist(index, 'whatsapp', e.target.value)}
+                      className="flex-1 h-[32px] px-2 border border-[#E8E0D5] outline-none focus:border-terracotta text-[12px]"
+                    />
+                    <button onClick={() => removeWaitlist(index)} className="p-1 text-red-500 hover:text-red-700">
+                      <UserMinus size={14} />
+                    </button>
+                  </div>
+                ))}
+                {form.waitlist.length === 0 && (
+                  <p className="text-[12px] text-warm-charcoal/60 italic">No one on waitlist</p>
+                )}
               </div>
             </div>
 
@@ -317,13 +404,11 @@ export default function AdminDepartures() {
               </button>
               <button
                 onClick={async () => {
-                  if (buildPayload.guestsParsed === null) return alert('Guests JSON is invalid');
-                  if (buildPayload.waitlistParsed === null) return alert('Waitlist JSON is invalid');
-                  if (!form.safariName?.trim() || !form.startDate || !form.endDate) {
-                    return alert('Safari Name, Start Date, and End Date are required');
+                  if (!form.safariId || !form.startDate || !form.endDate) {
+                    return alert('Safari, Start Date, and End Date are required');
                   }
-                  if (editingId) await update(editingId, buildPayload.payload);
-                  else await create(buildPayload.payload);
+                  if (editingId) await update(editingId, buildPayload);
+                  else await create(buildPayload);
                   setShowForm(false);
                   await refetch();
                 }}
@@ -338,3 +423,4 @@ export default function AdminDepartures() {
     </div>
   );
 }
+

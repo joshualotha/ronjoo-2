@@ -57,6 +57,7 @@ class StoreBlogPostRequest extends FormRequest
             'related_safari'      => 'nullable|string|max:255',
             'related_destination' => 'nullable|string|max:255',
             'show_cta'            => 'boolean',
+            'featured_image'      => 'nullable|string|max:255',
         ];
     }
 }

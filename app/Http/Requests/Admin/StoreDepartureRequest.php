@@ -11,7 +11,8 @@ class StoreDepartureRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'safari_name'       => 'required|string|max:255',
+            'safari_id'         => 'required|exists:safaris,id',
+            'safari_name'       => 'nullable|string|max:255',
             'start_date'        => 'required|date',
             'end_date'          => 'required|date|after:start_date',
             'total_seats'       => 'required|integer|min:1|max:50',

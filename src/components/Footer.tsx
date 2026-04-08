@@ -16,16 +16,6 @@ const Footer = () => {
 
   return (
     <footer className="section-dark noise-overlay relative">
-      {/* Quote */}
-      <div className="text-center py-20 px-6 border-b border-gold/10">
-        <p className="heading-display text-gold/80 text-2xl md:text-4xl max-w-3xl mx-auto leading-relaxed">
-          "The wilderness is not a luxury but a necessity of the human spirit."
-        </p>
-        <p className="heading-sub text-warm-charcoal/40 text-[11px] mt-6">
-         , Edward Abbey
-        </p>
-      </div>
-
         {/* Columns */}
       <div className="max-w-[1400px] mx-auto px-6 lg:px-12 py-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16">
         {/* Brand */}

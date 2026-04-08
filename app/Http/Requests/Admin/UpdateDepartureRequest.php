@@ -11,7 +11,8 @@ class UpdateDepartureRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'safari_name'       => 'sometimes|string|max:255',
+            'safari_id'         => 'sometimes|exists:safaris,id',
+            'safari_name'       => 'nullable|string|max:255',
             'start_date'        => 'sometimes|date',
             'end_date'          => 'sometimes|date|after:start_date',
             'total_seats'       => 'sometimes|integer|min:1|max:50',
