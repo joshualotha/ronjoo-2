@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { Instagram, Facebook, Youtube } from "lucide-react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useState } from "react";
+import { subscribeNewsletter } from "@/services/publicApi";
 
 const Footer = () => {
   const { settings } = useSiteSettings();
@@ -14,6 +16,31 @@ const Footer = () => {
     { Icon: Youtube, href: settings.youtube_url || "#" },
   ];
 
+  // Newsletter state
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [subscribeSuccess, setSubscribeSuccess] = useState(false);
+  const [subscribeError, setSubscribeError] = useState<string | null>(null);
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail.trim()) return;
+    setIsSubscribing(true);
+    setSubscribeError(null);
+    try {
+      await subscribeNewsletter({
+        email: newsletterEmail.trim(),
+        name: undefined,
+      });
+      setSubscribeSuccess(true);
+      setNewsletterEmail("");
+    } catch (err: any) {
+      setSubscribeError(err.message || "Failed to subscribe. Please try again.");
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
+
   return (
     <footer className="section-dark noise-overlay relative">
         {/* Columns */}
@@ -25,9 +52,53 @@ const Footer = () => {
               {businessName}
             </span>
           </Link>
-          <p className="body-text text-warm-charcoal/60 text-[15px] leading-[1.8] max-w-[280px]">
-            Private safaris and guided expeditions across Tanzania's most extraordinary wild places, crafted with 15 years of local mastery.
-          </p>
+          {subscribeSuccess ? (
+            <div className="bg-sage/10 border border-sage/30 p-4 text-center rounded-lg mb-4">
+              <p className="font-sub font-light text-sage text-[13px]">
+                Thank you for subscribing!
+              </p>
+              <button
+                onClick={() => setSubscribeSuccess(false)}
+                className="font-sub font-light text-sage/80 text-[11px] hover:underline mt-1"
+              >
+                Subscribe again
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4 max-w-[280px]">
+              <p className="body-text text-warm-charcoal/60 text-[13px] leading-relaxed">
+                Join our newsletter for exclusive safari stories and updates.
+              </p>
+              <form onSubmit={handleNewsletterSubmit} className="space-y-3">
+                <div className="flex gap-2">
+                  <input
+                    type="email"
+                    required
+                    value={newsletterEmail}
+                    onChange={(e) => setNewsletterEmail(e.target.value)}
+                    disabled={isSubscribing}
+                    className="flex-1 bg-transparent border border-faded-sand px-3 py-2.5 font-sub font-light text-warm-charcoal text-[13px] focus:outline-none focus:border-terracotta transition-colors disabled:opacity-60 rounded-none"
+                    placeholder="you@email.com"
+                  />
+                  <button
+                    type="submit"
+                    disabled={isSubscribing || !newsletterEmail.trim()}
+                    className="btn-safari-primary text-[11px] px-4 py-2.5 disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap"
+                  >
+                    {isSubscribing ? "..." : "Join"}
+                  </button>
+                </div>
+                {subscribeError && (
+                  <div className="border border-terracotta/30 bg-terracotta/5 px-3 py-2">
+                    <p className="font-sub font-light text-terracotta text-[11px]">{subscribeError}</p>
+                  </div>
+                )}
+                <p className="label-accent text-warm-charcoal/30 text-[10px]">
+                  Unsubscribe anytime. No spam.
+                </p>
+              </form>
+            </div>
+          )}
           <div className="flex gap-5 pt-2">
             {socials.map(({ Icon, href }, i) => (
               <a
