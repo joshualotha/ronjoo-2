@@ -12,6 +12,7 @@ import { getDestinationBySlug, getSafaris, getDestinations } from "@/services/pu
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingElements from "@/components/FloatingElements";
+import SEO from "@/components/seo/SEO";
 import {
   Accordion,
   AccordionContent,
@@ -90,8 +91,6 @@ const DestinationDetailPage = () => {
     queryFn: getSafaris,
   });
 
-  useEffect(() => { window.scrollTo(0, 0); }, [slug]);
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-warm-canvas">
@@ -116,8 +115,27 @@ const DestinationDetailPage = () => {
     );
   }
 
+  const schemaData = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://ronjoosafaris.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Destinations", "item": "https://ronjoosafaris.com/destinations" },
+      { "@type": "ListItem", "position": 3, "name": dest.name, "item": `https://ronjoosafaris.com/destinations/${slug}` }
+    ]
+  });
+
   return (
     <div className="min-h-screen bg-warm-canvas">
+      <SEO 
+        title={`${dest.name} Safari Tours — Tanzania | Ronjoo Safaris`}
+        description={dest.tagline || `Discover the wonders of ${dest.name} with Ronjoo Safaris' expert guides.`}
+        image={dest.heroImage}
+        url={`https://ronjoosafaris.com/destinations/${slug}`}
+        canonicalUrl={`https://ronjoosafaris.com/destinations/${slug}`}
+        type="website"
+        schema={schemaData}
+      />
       <Navbar />
       <HeroSection dest={dest} />
       <QuickFacts dest={dest} />
@@ -282,7 +300,7 @@ const StorySection = ({ dest }: { dest: any }) => {
           <div className="border-2 border-terracotta p-2">
             <img
               src={dest.portraitImage}
-              alt={dest.name}
+              alt={`Scenic view of ${dest.name} landscape in ${dest.region}`}
               className="w-full h-[500px] object-cover"
               loading="lazy"
             />
@@ -346,7 +364,7 @@ const WildlifeSection = ({ dest }: { dest: any }) => {
             >
               <img
                 src={animal.image}
-                alt={animal.name}
+                alt={`${animal.name} spotted in the wild at ${dest.name}`}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.08]"
                 loading="lazy"
               />
@@ -431,7 +449,7 @@ const AccommodationsSection = ({ dest }: { dest: any }) => (
           className="group transition-shadow duration-300 hover:shadow-[0_12px_40px_rgba(0,0,0,0.07)]"
         >
           <div className="relative h-[220px] overflow-hidden">
-            <img src={a.image} alt={a.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.05]" loading="lazy" />
+            <img src={a.image} alt={`Luxury accommodation at ${a.name}`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.05]" loading="lazy" />
           </div>
           <div className="p-5 bg-warm-canvas border border-faded-sand border-t-0">
             <p className="label-accent text-gold/60 text-[10px] mb-1">{a.tier}</p>
@@ -604,7 +622,7 @@ const RelatedDestinations = ({ dest }: { dest: any }) => {
           >
             <img
               src={r.portraitImage}
-              alt={r.name}
+              alt={`Explore the beautiful ${r.name} in ${r.region}`}
               className="w-[120px] h-[120px] object-cover flex-shrink-0 transition-transform duration-500 group-hover:scale-[1.05]"
               loading="lazy"
             />

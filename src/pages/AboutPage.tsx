@@ -104,8 +104,9 @@ const AboutPage = () => {
               <div className="aspect-[4/5] relative overflow-hidden rounded-t-full rounded-b-[32px]">
                 <img 
                   src="/assets/about.jpg" 
-                  alt="Maasai heritage" 
+                  alt="Maasai heritage and culture in Tanzania" 
                   className="w-full h-full object-cover scale-110 hover:scale-100 transition-transform duration-[2s]" 
+                  loading="lazy"
                 />
               </div>
               {/* Decorative texture or badge */}
@@ -240,8 +241,9 @@ const AboutPage = () => {
                     <div className="w-16 h-16 flex-shrink-0 overflow-hidden rounded-full">
                       <img
                         src={member.photo}
-                        alt={member.name}
+                        alt={`${member.name}, ${member.role} at Ronjoo Safaris`}
                         className="w-full h-full object-cover"
+                        loading="lazy"
                       />
                     </div>
                   ) : (

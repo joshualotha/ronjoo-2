@@ -5,6 +5,7 @@ import { useParams, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingElements from "@/components/FloatingElements";
+import SEO from "@/components/seo/SEO";
 import { Calendar, User, ArrowLeft, Share2, Tag, BookOpen } from "lucide-react";
 
 const BlogPostDetailPage = () => {
@@ -39,8 +40,43 @@ const BlogPostDetailPage = () => {
     );
   }
 
+  const schemaData = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `https://ronjoosafaris.com/blog/${slug}`
+    },
+    "headline": post.title,
+    "image": [
+      post.featuredImage
+    ],
+    "datePublished": post.publishedDate,
+    "author": {
+      "@type": "Person",
+      "name": post.author
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Ronjoo Safaris",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://ronjoosafaris.com/Ronjoo-Safaris-Logo-new.png"
+      }
+    }
+  });
+
   return (
     <div className="min-h-screen bg-warm-canvas selection:bg-terracotta/20">
+      <SEO 
+        title={`${post.title} — Journal | Ronjoo Safaris`}
+        description={post.excerpt || `Read ${post.title} on the Ronjoo Safaris journal.`}
+        image={post.featuredImage}
+        url={`https://ronjoosafaris.com/blog/${slug}`}
+        canonicalUrl={`https://ronjoosafaris.com/blog/${slug}`}
+        type="article"
+        schema={schemaData}
+      />
       <Navbar />
 
       {/* Cinematic Hero */}
@@ -156,7 +192,7 @@ const BlogPostDetailPage = () => {
                  {recentPosts.map((rPost: any) => (
                    <Link key={rPost.id} to={`/blog/${rPost.slug}`} className="block group">
                       <div className="aspect-video overflow-hidden rounded-2xl mb-4">
-                         <img src={rPost.featuredImage} alt={rPost.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                         <img src={rPost.featuredImage} alt={`Related story: ${rPost.title}`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy" />
                       </div>
                       <span className="label-accent text-terracotta text-[9px] uppercase tracking-widest block mb-2">{rPost.category}</span>
                       <h4 className="heading-display text-xl leading-snug group-hover:text-terracotta transition-colors italic">{rPost.title}</h4>

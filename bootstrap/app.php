@@ -12,6 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->web(append: [
+            \App\Http\Middleware\PrerenderMiddleware::class,
+        ]);
+
         $middleware->statefulApi();
 
         $middleware->throttleApi('60,1');

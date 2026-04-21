@@ -13,6 +13,7 @@ import heroImg from "@/assets/hero-savanna.jpg";
 import lionImg from "@/assets/safari-lion.jpg";
 import { submitEnquiry } from "@/services/publicApi";
 import { ApiError } from "@/services/api";
+import SEO from "@/components/seo/SEO";
 
 const totalSteps = 5;
 
@@ -132,6 +133,11 @@ const CustomSafariPage = () => {
 
   return (
     <div className="min-h-screen bg-warm-canvas">
+      <SEO 
+        title={sourceSafari ? `Customize ${sourceSafari.name} | Ronjoo Safaris` : "Design Your Dream Safari | Ronjoo Safaris"}
+        description="Build your own bespoke Tanzania safari itinerary. Select destinations, dates, and lodges to create a highly personalized, luxury adventure with Ronjoo Safaris."
+        image="/assets/hero-customsafaripage.jpg"
+      />
       <Navbar />
 
       {/* Hero Section */}

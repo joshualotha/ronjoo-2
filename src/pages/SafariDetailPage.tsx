@@ -8,6 +8,7 @@ import { resolveSafariImage } from "@/data/safariImageKeys";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingElements from "@/components/FloatingElements";
+import SEO from "@/components/seo/SEO";
 
 function mealCodesForDay(day: any): string[] {
   if (Array.isArray(day.mealsJson) && day.mealsJson.length > 0) {
@@ -164,8 +165,51 @@ const SafariDetailPage = () => {
     { icon: Sun, label: "Best Season", value: safari.bestSeason },
   ];
 
+  const schemaData = JSON.stringify([
+    {
+      "@context": "https://schema.org",
+      "@type": "Tour",
+      "name": safari.name,
+      "description": safari.description,
+      "image": heroUrls,
+      "tourProvider": {
+        "@type": "Organization",
+        "name": "Ronjoo Safaris",
+        "url": "https://ronjoosafaris.com"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": safari.price,
+        "priceCurrency": "USD"
+      },
+      "itinerary": (safari.itinerary || []).map((day: any) => ({
+        "@type": "Itinerary",
+        "name": day.title,
+        "description": day.description
+      }))
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://ronjoosafaris.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Safaris", "item": "https://ronjoosafaris.com/safaris" },
+        { "@type": "ListItem", "position": 3, "name": safari.name, "item": `https://ronjoosafaris.com/safaris/${slug || identifier}` }
+      ]
+    }
+  ]);
+
   return (
     <div className="min-h-screen bg-warm-canvas">
+      <SEO 
+        title={`${safari.name} — Luxury Tanzania Safari | Ronjoo Safaris`}
+        description={safari.description}
+        image={heroUrls[0]}
+        url={`https://ronjoosafaris.com/safaris/${slug || identifier}`}
+        canonicalUrl={`https://ronjoosafaris.com/safaris/${slug || identifier}`}
+        type="product"
+        schema={schemaData}
+      />
       <Navbar />
 
       {/* Hero with image slider */}

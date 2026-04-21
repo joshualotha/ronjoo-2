@@ -92,7 +92,7 @@ const Navbar = () => {
             <div className="flex items-center gap-1 rounded-lg px-2 py-1">
               <img
                 src="https://img.icons8.com/?size=100&id=V5cGWnc9R4xj&format=png&color=000000"
-                alt="Google Logo"
+                alt="Google 5-Star Reviews"
                 className="h-[14px] w-auto"
               />
               <div className="flex flex-col">
@@ -134,7 +134,7 @@ const Navbar = () => {
             className="flex-shrink-0"
           >
             <Link to="/" className="flex items-center">
-              <img src="/Ronjoo-Safaris-Logo-new.png" alt="Ronjoo Safaris Logo" className="h-16 w-auto" />
+              <img src="/Ronjoo-Safaris-Logo-new.png" alt="Ronjoo Safaris - Premium Tanzania Tours Logo" className="h-16 w-auto" />
             </Link>
           </motion.div>
 

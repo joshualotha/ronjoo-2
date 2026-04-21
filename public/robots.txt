@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Do not crawl admin or API routes
+Disallow: /kijani-desk/
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://ronjoosafaris.com/sitemap.xml

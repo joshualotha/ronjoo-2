@@ -1,0 +1,85 @@
+================================================================================
+
+                           WEB DEVELOPMENT AGREEMENT
+
+                                 Prepared For:
+                              [Client Name/Company]
+                                ("The Client")
+
+                                 Prepared By:
+                            [Your Agency / Your Name]
+                                ("The Developer")
+
+                                Effective Date: 
+                                 April 20, 2026
+
+================================================================================
+
+This Web Development Agreement ("Agreement") is entered into on April 20, 2026, by and between [Client Name/Company] ("Client") and [Your Agency / Your Name] ("Developer").
+
+1. SCOPE OF SERVICES
+====================
+Developer agrees to design, develop, and deliver a custom digital platform and administrative backend ("Kijani Desk") for Ronjoo Safaris as explicitly detailed in the attached "Ronjoo Safaris - Comprehensive Platform Scope of Work (SOW)" document. Any additional features or pages requested outside of the agreed-upon SOW will be subject to a separate estimate and change order.
+
+2. PROJECT TIMELINE
+===================
+The project will be completed within a fast-tracked duration of exactly One (1) Month. 
+* Start Date: April 20, 2026
+* Estimated Delivery Date: May 20, 2026
+
+This timeline is contingent upon the Client providing all necessary feedback, assets, and approvals in a timely manner. Delays in Client feedback may result in corresponding delays to the Delivery Date.
+
+3. COMPENSATION & PAYMENT TERMS
+===============================
+For the services outlined in the Scope of Work, the Client agrees to pay the Developer a total project fee of $[Total Amount]. 
+
+Payments will be made according to the following schedule:
+* 50% Deposit ($[Deposit Amount]) due upon signing this Agreement (Project Kickoff).
+* 25% Milestone ($[Milestone Amount]) due upon completion of Phase 3 (Backend & Kijani Desk Development).
+* 25% Final Balance ($[Balance Amount]) due prior to Phase 6 (Live Deployment & Handover).
+
+All invoices are payable within [Number] days of receipt. The final platform will not be migrated to the Client's live servers until the final balance is paid in full.
+
+4. CLIENT RESPONSIBILITIES
+==========================
+The Client agrees to:
+* Provide all text, copywriting, images, and branding assets necessary for the completion of the website in a timely manner.
+* Provide prompt and consolidated feedback during the designated revision rounds.
+* Ensure they have the legal right to use any images, text, or assets provided to the Developer.
+
+5. REVISIONS & APPROVALS
+========================
+The Client will be granted [Number, e.g., Two (2)] rounds of revisions during the Visual Design & UI/UX phase. Once the design is approved and development begins, any further structural or design changes will be billed at an hourly rate of $[Hourly Rate]/hr.
+
+6. INTELLECTUAL PROPERTY & OWNERSHIP
+====================================
+Upon completion of the project and full clearance of the final payment, the Developer transfers all rights, ownership, and intellectual property of the custom website interface, frontend codebase, and visual design to the Client. The Developer retains the right to display the completed work in their professional portfolio and marketing materials.
+
+7. CONFIDENTIALITY
+==================
+Both parties agree to keep all proprietary business information, client lists, and trade secrets strictly confidential and will not disclose such information to any third parties without prior written consent.
+
+8. MAINTENANCE & SUPPORT
+========================
+The Developer will provide a complimentary warranty period of [Number, e.g., Thirty (30)] days post-launch to address any critical bugs or broken functionality outlined in the original SOW. Any ongoing maintenance, content updates, or feature additions after this period will require a separate monthly maintenance contract or will be billed at the standard hourly rate.
+
+9. TERMINATION
+==============
+Either party may terminate this agreement with 14 days written notice. In the event of cancellation by the Client, the Developer will retain the initial deposit and bill for any completed work that exceeds the deposit amount. In the event of cancellation by the Developer, the Developer will hand over all completed assets and refund any unearned portion of the payments made.
+
+10. SIGNATURES
+==============
+By signing below, the parties agree to the terms and conditions outlined in this Web Development Agreement.
+
+CLIENT:
+Name: ___________________________________
+Title: __________________________________
+Date: ___________________________________
+Signature: ______________________________
+
+
+DEVELOPER:
+Name: ___________________________________
+Title: __________________________________
+Date: ___________________________________
+Signature: ______________________________

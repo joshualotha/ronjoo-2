@@ -195,7 +195,7 @@ const SafariPackagePage = () => {
           <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
             <div className="relative">
               <div className="absolute -bottom-2 -right-2 w-full h-full border-2 border-terracotta" />
-              <img src={safari.heroImages[0]} alt={safari.name} className="relative z-10 w-full h-[400px] object-cover" />
+              <img src={safari.heroImages[0]} alt={`A glimpse of the ${safari.name} experience`} className="relative z-10 w-full h-[400px] object-cover" loading="lazy" />
             </div>
             <div className="bg-deep-earth p-6 mt-8">
               <span className="font-sub font-light text-[11px] text-gold uppercase tracking-[0.2em]">What's Included</span>
@@ -312,7 +312,7 @@ const SafariPackagePage = () => {
             {safari.accommodations.map((lodge, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.15 }} className="grid grid-cols-1 md:grid-cols-[40%_60%] overflow-hidden group">
                 <div className="relative h-[280px] overflow-hidden">
-                  <img src={lodge.image} alt={lodge.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
+                  <img src={lodge.image} alt={`Luxury accommodation at ${lodge.name}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" loading="lazy" />
                   <span className="absolute bottom-3 left-3 label-accent text-gold bg-deep-earth px-3 py-1 text-[10px]">{lodge.tier}</span>
                 </div>
                 <div className="bg-dust-ivory p-8 border-l-0 md:border-l-[3px] border-transparent group-hover:border-terracotta transition-colors relative">

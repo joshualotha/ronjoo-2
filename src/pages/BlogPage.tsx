@@ -153,8 +153,9 @@ const BlogPage = () => {
                   <div className="lg:col-span-8 overflow-hidden rounded-[32px]">
                     <img
                       src={featuredPost.featuredImage}
-                      alt={featuredPost.title}
+                      alt={`Featured story: ${featuredPost.title}`}
                       className="w-full h-[500px] object-cover transition-transform duration-[2s] ease-[0.19, 1, 0.22, 1] group-hover:scale-105"
+                      loading="lazy"
                     />
                   </div>
                   <div className="lg:col-span-4 flex flex-col justify-center">
@@ -196,8 +197,9 @@ const BlogPage = () => {
                     <div className="relative aspect-[4/3] overflow-hidden rounded-[24px] mb-8 shadow-sm">
                       <img
                         src={post.featuredImage}
-                        alt={post.title}
+                        alt={`Read story: ${post.title}`}
                         className="w-full h-full object-cover transition-transform duration-[1.5s] ease-[0.19, 1, 0.22, 1] group-hover:scale-110"
+                        loading="lazy"
                       />
                       <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500" />
                     </div>

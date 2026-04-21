@@ -46,10 +46,6 @@ const AddOnDetailPage = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [slug]);
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-warm-canvas">

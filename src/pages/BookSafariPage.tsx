@@ -3,7 +3,7 @@ import { useParams, useSearchParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Send, MessageCircle, ArrowLeft } from "lucide-react";
-import { getSafariBySlug } from "@/services/publicApi";
+import { getSafariBySlug, getAddOns } from "@/services/publicApi";
 import { submitEnquiry } from "@/services/publicApi";
 import { ApiError } from "@/services/api";
 import Navbar from "@/components/Navbar";
@@ -52,9 +52,37 @@ const BookSafariPage = () => {
   const [preferredDates, setPreferredDates] = useState("");
   const [flexible, setFlexible] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", whatsapp: "", country: "", notes: "" });
+  const [selectedAddOnSlugs, setSelectedAddOnSlugs] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const { data: allAddOns = [] } = useQuery({
+    queryKey: ["bookingAddOns"],
+    queryFn: getAddOns,
+    enabled: !!slug,
+  });
+
+  const selectedAddOns = useMemo(
+    () => (
+      Array.isArray(allAddOns)
+        ? allAddOns.filter((addon: any) => selectedAddOnSlugs.includes(addon.slug))
+        : []
+    ),
+    [allAddOns, selectedAddOnSlugs]
+  );
+
+  const parsePrice = (value: any) => {
+    if (typeof value === "number") return value;
+    if (typeof value === "string") {
+      const cleaned = value.replace(/[\$,]/g, "");
+      const match = cleaned.match(/\d+(?:\.\d+)?/);
+      return match ? Number(match[0]) : 0;
+    }
+    return 0;
+  };
+
+  const addonsTotal = selectedAddOns.reduce((sum, addon: any) => sum + parsePrice(addon.price), 0);
 
   // Tier matching
   const getTierPrice = (count: number): number => {
@@ -73,7 +101,7 @@ const BookSafariPage = () => {
   };
 
   const perPerson = getTierPrice(travelers);
-  const totalPrice = perPerson * travelers;
+  const totalPrice = perPerson * travelers + addonsTotal;
 
   const heroUrl = safari
     ? resolveSafariImage(safari.heroImages?.[0] || safari.image || '/assets/hero-booksafaripage.jpg')
@@ -87,6 +115,7 @@ const BookSafariPage = () => {
     setIsSubmitting(true);
     try {
       const dateStr = preferredDates + (flexible ? " (flexible)" : "");
+      const addonLines = selectedAddOns.map((addon: any) => `- ${addon.name}${addon.price ? ` (${addon.price})` : ""}`);
       await submitEnquiry({
         guestName: form.name,
         email: form.email,
@@ -101,6 +130,8 @@ const BookSafariPage = () => {
           `Per person: $${perPerson.toLocaleString()}`,
           `Estimated total: $${totalPrice.toLocaleString()}`,
           `Dates: ${dateStr || "Not specified"}`,
+          selectedAddOns.length ? "Add-ons:" : "",
+          ...addonLines,
           "",
           form.notes ? `Notes: ${form.notes}` : "",
         ].filter(Boolean).join("\n"),
@@ -339,6 +370,62 @@ const BookSafariPage = () => {
                             placeholder="Your country"
                           />
                         </div>
+                      </div>
+                    </div>
+
+                    {/* Add-ons */}
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="label-accent text-warm-charcoal/50 text-[10px]">Add-Ons</h3>
+                        <span className="font-sub text-warm-charcoal/40 text-[11px]">
+                          +${addonsTotal.toLocaleString()} selected
+                        </span>
+                      </div>
+                      <div className="space-y-3">
+                        {Array.isArray(allAddOns) && allAddOns.length > 0 ? (
+                          allAddOns.slice(0, 5).map((addon: any) => (
+                            <label
+                              key={addon.slug || addon.id}
+                              className="flex items-start gap-3 p-4 border border-faded-sand rounded-lg bg-white/70"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={selectedAddOnSlugs.includes(addon.slug)}
+                                onChange={() => {
+                                  setSelectedAddOnSlugs((prev) =>
+                                    prev.includes(addon.slug)
+                                      ? prev.filter((slug) => slug !== addon.slug)
+                                      : [...prev, addon.slug]
+                                  );
+                                }}
+                                disabled={isSubmitting}
+                                className="mt-1 accent-terracotta"
+                              />
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="font-sub font-semibold text-warm-charcoal text-[14px]">
+                                    {addon.name}
+                                  </span>
+                                  {addon.price && (
+                                    <span className="font-sub text-warm-charcoal/50 text-[12px]">
+                                      {addon.price}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="font-sub font-light text-warm-charcoal/50 text-[13px] mt-1">
+                                  {addon.tagline || addon.description || ""}
+                                </p>
+                              </div>
+                            </label>
+                          ))
+                        ) : (
+                          <p className="font-sub text-warm-charcoal/50 text-[13px]">Loading add-ons...</p>
+                        )}
+                        {Array.isArray(allAddOns) && allAddOns.length > 5 && (
+                          <p className="font-sub text-warm-charcoal/50 text-[12px]">
+                            Showing the first 5 add-ons. Select any to add them to your booking.
+                          </p>
+                        )}
                       </div>
                     </div>
 

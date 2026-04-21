@@ -355,10 +355,6 @@ const FaqPage = () => {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
