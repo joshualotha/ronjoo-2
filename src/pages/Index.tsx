@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SEO from "@/components/seo/SEO";
 import FloatingElements from "@/components/FloatingElements";
 import HeroSection from "@/components/home/HeroSection";
 import FeaturedSafaris from "@/components/home/FeaturedSafaris";
@@ -11,8 +12,30 @@ import InstagramGallery from "@/components/home/InstagramGallery";
 import QuoteSection from "@/components/home/QuoteSection";
 
 const Index = () => {
+  const schemaData = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "url": "https://ronjoosafaris.com/",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://ronjoosafaris.com/safaris?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  });
+
   return (
     <div className="min-h-screen bg-warm-canvas">
+      <SEO 
+        title="Ronjoo Safaris | Premium Tanzania Tours & Expeditions"
+        description="Experience the ultimate luxury African safari in Tanzania. Unforgettable wildlife encounters, premium guides, and custom itineraries."
+        url="https://ronjoosafaris.com/"
+        canonicalUrl="https://ronjoosafaris.com/"
+        type="website"
+        schema={schemaData}
+      />
       <Navbar />
       <main>
         <HeroSection />

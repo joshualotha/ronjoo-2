@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getFaqs } from "@/services/publicApi";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SEO from "@/components/seo/SEO";
 
 interface FaqItem {
   question: string;
@@ -355,8 +356,29 @@ const FaqPage = () => {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
+  const schemaData = faqCategories.length > 0 ? JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqCategories.flatMap((cat: any) => (cat.questions || []).map((q: any) => ({
+      "@type": "Question",
+      "name": q.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": q.answer
+      }
+    })))
+  }) : undefined;
+
   return (
     <div className="min-h-screen bg-background">
+      <SEO 
+        title="Frequently Asked Questions | Ronjoo Safaris"
+        description="Find answers to all your Tanzania safari questions including visas, what to pack, and safety."
+        url="https://ronjoosafaris.com/faq"
+        canonicalUrl="https://ronjoosafaris.com/faq"
+        type="website"
+        schema={schemaData}
+      />
       <Navbar />
 
       {/* ─── HERO ─── */}

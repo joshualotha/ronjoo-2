@@ -5,6 +5,7 @@ import { getReviews } from "@/services/publicApi";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingElements from "@/components/FloatingElements";
+import SEO from "@/components/seo/SEO";
 import { Link } from "react-router-dom";
 import { Star, MapPin, Calendar, MessageSquare, Quote, ArrowRight } from "lucide-react";
 
@@ -33,8 +34,29 @@ const ReviewsPage = () => {
     ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)
     : "5.0";
 
+  const schemaData = reviews.length > 0 ? JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Ronjoo Safaris",
+    "url": "https://ronjoosafaris.com",
+    "logo": "https://ronjoosafaris.com/Ronjoo-Safaris-Logo-new.png",
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": averageRating,
+      "reviewCount": reviews.length
+    }
+  }) : undefined;
+
   return (
     <div className="min-h-screen bg-warm-canvas selection:bg-terracotta/20">
+      <SEO 
+        title="Guest Reviews & Chronicles | Ronjoo Safaris"
+        description="Read unfiltered reviews and stories from our past safari guests."
+        url="https://ronjoosafaris.com/reviews"
+        canonicalUrl="https://ronjoosafaris.com/reviews"
+        type="website"
+        schema={schemaData}
+      />
       <Navbar />
 
       {/* Cinematic Hero */}
